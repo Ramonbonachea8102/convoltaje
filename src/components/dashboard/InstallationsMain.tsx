@@ -555,6 +555,22 @@ export default function InstallationsMain() {
                         <span className="text-[10px] text-white/40 block font-bold">DESCRIPCIÓN TÉCNICA</span>
                         <p className="text-white/70 leading-relaxed font-sans mt-0.5">{inst.description}</p>
                       </div>
+
+                      <div className="col-span-2 pt-2 flex items-center justify-between bg-white/5 p-3 rounded-2xl border border-white/10">
+                        <div className="text-xs">
+                          <span className="font-bold text-[#00D9FF]">Estado de Aceptación OT:</span>
+                          <p className="text-white/70">Aceptar confirma la asignación para montaje y notifica al cliente.</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            makeService.dispatchOtSubstageEvent(inst.id, inst.status, 'en_instalacion', currentUser?.name || 'Técnico');
+                            toast.success(`✅ OT "${inst.clientName}" aceptada correctamente.`);
+                          }}
+                          className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 shrink-0"
+                        >
+                          ✅ Aceptar OT
+                        </button>
+                      </div>
                     </div>
 
                     {/* EcoFlow Integration Alert if applicable */}

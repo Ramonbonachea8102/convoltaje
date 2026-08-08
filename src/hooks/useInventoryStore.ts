@@ -159,13 +159,15 @@ export const useInventoryStore = create<InventoryState>()(
           itemCondition: 'stock'
         };
 
+        const totalCost = data.quantity * data.unitCost;
+
         const movement: InventoryMovement = {
           id: `mov-${Date.now()}`,
           itemId: newItem.id,
           type: 'compra',
           quantity: data.quantity,
           unitCost: data.unitCost,
-          totalCost: data.quantity * data.unitCost,
+          totalCost,
           toLocation: data.storageLocation,
           supplierName: data.supplierName,
           countryOfOrigin: data.countryOfOrigin,
@@ -173,6 +175,14 @@ export const useInventoryStore = create<InventoryState>()(
           createdBy: data.createdBy,
           notes: `Ingreso de compra por Comprador (${data.createdBy})`
         };
+
+        // Generar asiento contable en useAccountingStore si está cargado en memoria
+        try {
+          const { useAccountingStore } = require('./useAccountingStore');
+          useAccountingStore.getState().recordPurchaseExpense(data.name, totalCost, 'acc-cash-usd', data.createdBy);
+        } catch (err) {
+          console.warn("Accounting store update skipped:", err);
+        }
 
         set((state) => ({
           items: [newItem, ...state.items],

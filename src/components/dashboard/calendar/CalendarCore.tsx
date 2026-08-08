@@ -8,6 +8,7 @@ import { useCalendarStore, CalendarEvent } from "@/hooks/useCalendarStore";
 import { useCrmStore } from "@/hooks/useCrmStore";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { makeService } from "@/lib/services/makeService";
+import { toast } from "sonner";
 
 type CalendarViewMode = 'semana' | 'mes' | 'hoy' | 'manana';
 
@@ -265,6 +266,30 @@ export default function CalendarCore() {
     );
   };
 
+  const handleCopyWhatsAppSummary = () => {
+    const activeDate = viewMode === 'semana' ? activeWeekDay : currentDate;
+    const formattedDate = format(activeDate, "yyyy-MM-dd");
+    const dateLabel = format(activeDate, "eeee d 'de' MMMM, yyyy", { locale: es });
+    const dayEvents = getEventsForDate(activeDate);
+
+    let summaryText = `☀️ *CONVOLTAJE - RESUMEN DE OBRAS*\n📅 *Fecha:* ${dateLabel}\n-----------------------------------\n`;
+
+    if (dayEvents.length === 0) {
+      summaryText += `Sin servicios ni instalaciones agendadas para esta fecha.`;
+    } else {
+      dayEvents.forEach((evt, idx) => {
+        summaryText += `\n*${idx + 1}. ${evt.title}*\n`;
+        summaryText += `⏱️ *Hora:* ${evt.time || '09:00 hs'}\n`;
+        if (evt.clientName) summaryText += `👤 *Cliente:* ${evt.clientName}\n`;
+        if (evt.location) summaryText += `📍 *Lugar:* ${evt.location}\n`;
+        if (evt.description) summaryText += `📝 *Detalles:* ${evt.description}\n`;
+      });
+    }
+
+    navigator.clipboard.writeText(summaryText);
+    toast.success('📋 Resumen copiado al portapapeles para WhatsApp.');
+  };
+
   return (
     <div className="w-full flex flex-col font-sans text-white pb-12">
       
@@ -278,11 +303,12 @@ export default function CalendarCore() {
           
           <div className="flex gap-2">
             <button 
-              // onClick={exportBackup}
-              className="p-2.5 text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all"
-              title="Backup"
+              onClick={handleCopyWhatsAppSummary}
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-emerald-500 hover:bg-emerald-600 rounded-xl text-slate-950 transition-all shadow-md"
+              title="Copiar Resumen para WhatsApp"
             >
-              <Download size={16} />
+              <FileText size={14} />
+              <span>WhatsApp</span>
             </button>
             <button 
               onClick={handleAddClick}

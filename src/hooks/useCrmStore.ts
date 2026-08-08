@@ -86,6 +86,7 @@ interface CrmState {
     actorName?: string,
     actorRole?: string
   ) => void;
+  reserveDealKit: (dealId: string, actorName?: string) => void;
 }
 
 export const useCrmStore = create<CrmState>()(
@@ -220,6 +221,47 @@ export const useCrmStore = create<CrmState>()(
           }),
         }));
       },
+
+      reserveDealKit: (dealId, actorName = 'Comercial') => {
+        const deal = get().deals.find(d => d.id === dealId);
+        if (!deal) return;
+
+        const clean = deal.company.toLowerCase();
+        let itemsToReserve: { code: string; qty: number }[] = [];
+
+        if (clean.includes('3kw')) {
+          itemsToReserve = [{ code: 'INV-GROW-3KW', qty: 1 }, { code: 'PAN-CAN-450', qty: 6 }];
+        } else if (clean.includes('5kw') || clean.includes('6kw')) {
+          itemsToReserve = [{ code: 'INV-DEYE-5KW', qty: 1 }, { code: 'PAN-JINKO-550', qty: 10 }, { code: 'BAT-PYLON-4.8', qty: 1 }];
+        } else if (clean.includes('10kw') || clean.includes('8kw')) {
+          itemsToReserve = [{ code: 'INV-DEYE-5KW', qty: 2 }, { code: 'PAN-JINKO-550', qty: 16 }, { code: 'BAT-PYLON-4.8', qty: 2 }];
+        } else {
+          itemsToReserve = [{ code: 'INV-DEYE-5KW', qty: 1 }, { code: 'PAN-JINKO-550', qty: 8 }];
+        }
+
+        try {
+          const { useInventoryStore } = require('./useInventoryStore');
+          const invState = useInventoryStore.getState();
+
+          itemsToReserve.forEach(req => {
+            const invItem = invState.items.find((i: any) => i.code === req.code);
+            if (invItem) {
+              invState.reserveStock(invItem.id, req.qty);
+            }
+          });
+
+          get().logOtActivity(
+            dealId,
+            `Reservó Kit (${deal.company}) en Almacén`,
+            `Reserva de componentes para ${deal.name}`,
+            'pendiente_almacen',
+            actorName,
+            'comercial'
+          );
+        } catch (err) {
+          console.warn("Reserve stock skipped:", err);
+        }
+      }
     }),
     {
       name: 'convoltaje-crm-storage',

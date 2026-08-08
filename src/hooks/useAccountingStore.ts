@@ -105,6 +105,7 @@ interface AccountingState {
   toggleAccountActive: (id: string) => void;
 
   addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'lines' | 'totalDebit' | 'totalCredit' | 'createdBy'>, lines: JournalLine[]) => void;
+  recordPurchaseExpense: (itemName: string, totalCost: number, paymentAccountId?: string, createdBy?: string) => void;
   deleteJournalEntry: (id: string) => void;
   toggleJournalEntryStatus: (id: string) => void;
 
@@ -202,6 +203,27 @@ export const useAccountingStore = create<AccountingState>()(
       addJournalEntry: (base, lines) => set((state) => ({
         journalEntries: [createJournalEntry(base, lines), ...state.journalEntries],
       })),
+
+      recordPurchaseExpense: (itemName, totalCost, paymentAccountId = 'acc-cash-usd', createdBy = 'Comprador') => {
+        const lines: JournalLine[] = [
+          makeLine(`l-pur-${Date.now()}-1`, 'acc-exp-materials', totalCost, 0, `Compra inventario: ${itemName}`),
+          makeLine(`l-pur-${Date.now()}-2`, paymentAccountId, 0, totalCost, `Pago compra: ${itemName}`)
+        ];
+
+        const baseEntry: Omit<JournalEntry, 'id' | 'lines' | 'totalDebit' | 'totalCredit' | 'createdBy'> = {
+          date: new Date().toISOString().split('T')[0],
+          concept: `Compra de mercancía: ${itemName}`,
+          type: 'gasto_obra',
+          paymentMethod: 'Efectivo/Transferencia',
+          originalAmount: totalCost,
+          originalCurrency: 'USD',
+          status: 'completado'
+        };
+
+        set((state) => ({
+          journalEntries: [createJournalEntry(baseEntry, lines, createdBy), ...state.journalEntries]
+        }));
+      },
 
       deleteJournalEntry: (id) => set((state) => ({
         journalEntries: state.journalEntries.filter(je => je.id !== id),
