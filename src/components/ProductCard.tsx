@@ -1,6 +1,7 @@
-import { Zap, Tv2, Wind, Refrigerator, Lightbulb, Smartphone, Laptop, Fan, Microwave, Coffee, Camera, Gauge } from "lucide-react";
+import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/lib/products";
+import { useInventoryStore } from "@/hooks/useInventoryStore";
 
 interface ProductCardProps {
   product: Product;
@@ -17,149 +18,113 @@ export default function ProductCard({
   isComparing,
   onToggleCompare,
 }: ProductCardProps) {
+  const { items } = useInventoryStore();
 
-  // Parse supports to icons
-  const getSupportIcons = () => {
-    if (!product.supports) return null;
-    const s = product.supports.toLowerCase();
-    const icons = [];
-    
-    if (s.includes("cámara") || s.includes("camara") || s.includes("cámaras") || s.includes("camaras")) {
-      icons.push(<span key="camera" title="Cámaras de seguridad"><Camera className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("motor") || s.includes("motores") || s.includes("bomba")) {
-      icons.push(<span key="motor" title="Motores/Bombas de agua"><Gauge className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("aire acondicionado") || s.includes("aires")) {
-      icons.push(<span key="wind" title="Aire acondicionado"><Wind className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("nevera") || s.includes("refrigerador") || s.includes("neveras")) {
-      icons.push(<span key="fridge" title="Nevera/Refrigerador"><Refrigerator className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("microondas")) {
-      icons.push(<span key="microwave" title="Microondas"><Microwave className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("cafetera")) {
-      icons.push(<span key="coffee" title="Cafetera"><Coffee className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("tv") || s.includes("televisor")) {
-      icons.push(<span key="tv" title="Televisor"><Tv2 className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("laptop") || s.includes("laptops")) {
-      icons.push(<span key="laptop" title="Laptops"><Laptop className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("ventilador") || s.includes("ventiladores")) {
-      icons.push(<span key="fan" title="Ventilador"><Fan className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("luces") || s.includes("led")) {
-      icons.push(<span key="lights" title="Luces LED"><Lightbulb className="w-5 h-5 text-muted-foreground" /></span>);
-    }
-    if (s.includes("celular") || s.includes("carga de equipos") || s.includes("celulares") || s.includes("smartphone")) {
-      icons.push(<span key="phone" title="Celulares"><Smartphone className="w-5 h-5 text-muted-foreground" /></span>);
-    }
+  // Buscar stock real en useInventoryStore por nombre o código
+  const invItem = items.find(
+    (i) => i.name.toLowerCase().includes(product.name.toLowerCase()) || product.name.toLowerCase().includes(i.name.toLowerCase())
+  );
+  
+  const currentStock = invItem ? invItem.stock : (product.outOfStock ? 0 : (product.popular ? 15 : 2));
 
-    if (icons.length === 0) return null;
-    
-    return (
-      <div className="flex gap-2 items-center mt-2 justify-start md:justify-center flex-wrap">
-        {icons.slice(0, 4)}
-      </div>
-    );
-  };
+  // Extraer marca sugerida o marca default
+  const brandName = product.name.includes("SUNGOLDPOWER") ? "SUNGOLDPOWER"
+    : product.name.includes("EG4") ? "EG4"
+    : product.name.includes("Deye") ? "DEYE"
+    : product.name.includes("EcoFlow") ? "ECOFLOW"
+    : product.name.includes("Bluetti") ? "BLUETTI"
+    : product.name.includes("Growatt") ? "GROWATT"
+    : "SUNPOWER";
+
+  const statusTag = product.discount ? "oferta!" : (product.popular ? "nuevo!" : "corre!");
 
   return (
-    <div className="card-hover group relative bg-card rounded-xl overflow-hidden shadow-md border border-border transition-all duration-300 flex flex-col h-full">
-      {/* Mobile: Horizontal layout (Text left 60%, Image right 40%). Desktop: Vertical stacked */}
-      <div className="flex flex-row md:flex-col p-4 md:p-0 flex-grow">
-        
-        {/* Left Side (Mobile) / Bottom (Desktop) - Texts */}
-        <div className="w-[60%] md:w-full flex flex-col justify-center pr-3 md:pr-0 md:p-4 order-1 md:order-2">
-          <h3 className="font-accent text-base md:text-lg font-bold text-foreground mb-1 line-clamp-2 text-left md:text-center">
-            {product.name}
-          </h3>
-          
-          {/* Appliance Icons */}
-          {getSupportIcons()}
-
-          <div className="mt-3 md:mt-4 text-left md:text-center">
-            <div className="flex items-baseline justify-start md:justify-center gap-2">
-              <span className="text-2xl md:text-3xl font-bold text-primary">
-                ${product.price}
-              </span>
-              {product.originalPrice && (
-                <span className="text-xs md:text-sm text-muted-foreground line-through">
-                  ${product.originalPrice}
-                </span>
-              )}
-            </div>
-            <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5 uppercase tracking-widest text-left md:text-center">USD</p>
-          </div>
+    <div className="group relative bg-white border-2 border-orange-500/80 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full p-4 text-slate-800">
+      
+      {/* Header Top Section: Image & Badge */}
+      <div className="relative w-full mb-3">
+        {/* Status Badge Top Left */}
+        <div className={`absolute -top-1 -left-1 z-20 font-black text-xs px-3 py-1 rounded-br-2xl rounded-tl-2xl shadow-md uppercase tracking-wider text-white ${
+          statusTag === 'nuevo!' ? 'bg-blue-600' : statusTag === 'corre!' ? 'bg-orange-600' : 'bg-red-600'
+        }`}>
+          {statusTag}
         </div>
 
-        {/* Right Side (Mobile) / Top (Desktop) - Image Section */}
-        <div className="w-[40%] md:w-full relative flex items-center justify-center bg-muted/5 md:pt-6 md:pb-2 rounded-xl md:rounded-none order-2 md:order-1">
-          {/* Mobile: rounded-xl square. Desktop: circular w-48 h-48 */}
-          <div className="relative w-full aspect-square md:w-48 md:h-48 rounded-xl md:rounded-full overflow-hidden bg-white shadow-inner flex items-center justify-center md:border-4 md:border-muted/20">
-            {product.image ? (
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-contain p-2 md:p-4 group-hover:scale-110 transition-transform duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/10">
-                <Zap className="w-8 h-8 md:w-10 md:h-10 mb-1 opacity-20" />
-              </div>
-            )}
-          </div>
+        {/* Compare Toggle Top Right */}
+        {onToggleCompare && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleCompare(product);
+            }}
+            className={`absolute top-0 right-0 z-20 px-2 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm ${
+              isComparing
+                ? "bg-[#00D9FF] text-black border-[#00D9FF]"
+                : "bg-slate-900/60 text-white border-white/20 hover:bg-slate-900"
+            }`}
+          >
+            {isComparing ? "✓" : "+ Comparar"}
+          </button>
+        )}
 
-          {/* Badges */}
-          {product.popular && (
-            <div className="absolute top-1 right-1 md:top-3 md:right-3 bg-secondary text-secondary-foreground px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-accent flex items-center gap-1 z-10 shadow-sm">
-              <Zap className="w-2 h-2 md:w-3 md:h-3" />
-              Popular
+        {/* Product Image */}
+        <div className="w-full h-44 rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center p-3 relative border border-slate-100">
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+              <Zap className="w-10 h-10 opacity-30" />
             </div>
-          )}
-
-          {product.discount && (
-            <div className="absolute top-1 left-1 md:top-3 md:left-3 bg-accent text-accent-foreground px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-accent z-10 shadow-sm">
-              -{product.discount}%
-            </div>
-          )}
-
-          {product.outOfStock && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white px-2 py-1 md:px-4 md:py-1.5 rounded-md text-xs md:text-sm font-bold uppercase tracking-wider z-20 shadow-lg whitespace-nowrap">
-              Agotado
-            </div>
-          )}
-
-          {onToggleCompare && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleCompare(product);
-              }}
-              className={`absolute bottom-2 right-2 z-20 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm flex items-center gap-1 active:scale-95 ${
-                isComparing
-                  ? "bg-[#00D9FF] text-black border-[#00D9FF]"
-                  : "bg-black/60 text-white border-white/20 hover:bg-black/80"
-              }`}
-            >
-              {isComparing ? "✓ Comparando" : "+ Comparar"}
-            </button>
           )}
         </div>
       </div>
 
-      {/* Bottom Button (100% width) */}
-      <div className="px-4 pb-4 md:pt-0 mt-auto">
-        <Button
-          onClick={() => onViewDetails && onViewDetails(product)}
-          className="w-full bg-[#00D9FF] hover:bg-[#00D9FF]/90 text-black font-accent text-sm md:text-base py-4 md:py-5 btn-scale-active shadow-sm font-semibold neon-btn"
-        >
-          {product.outOfStock ? "Consultar" : "COMPRAR"}
-        </Button>
+      {/* Info Section */}
+      <div className="flex-1 flex flex-col justify-between">
+        <div>
+          {/* Brand Name Tag */}
+          <span className="text-[11px] font-extrabold text-orange-600 uppercase tracking-widest block mb-0.5">
+            {brandName}
+          </span>
+
+          {/* Model Name */}
+          <h3 className="font-black text-base md:text-lg text-slate-900 leading-tight mb-2 uppercase line-clamp-2">
+            {product.name}
+          </h3>
+
+          {/* Description */}
+          <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
+            {product.description}
+          </p>
+        </div>
+
+        {/* Stock & Action Bar */}
+        <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+          {/* Stock Display Badge (Rojo si <=2, Gris/Verde si disponible) */}
+          <div className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${
+            currentStock === 0
+              ? 'bg-slate-100 text-slate-500 border-slate-200'
+              : currentStock <= 2
+              ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
+              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+          }`}>
+            {currentStock === 0 ? 'Agotado' : `Quedan ${currentStock} en stock`}
+          </div>
+
+          {/* Action Button: ver + */}
+          <Button
+            onClick={() => onViewDetails && onViewDetails(product)}
+            className="bg-orange-600 hover:bg-orange-700 text-white font-black text-xs px-4 py-2 h-auto rounded-xl shadow-md uppercase tracking-wider active:scale-95"
+          >
+            ver +
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
+

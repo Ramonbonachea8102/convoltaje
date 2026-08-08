@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { CONVOLTAJE_PRODUCTS, WHATSAPP_NUMBERS, Product } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { Calculator, Download, X } from "lucide-react";
+import { Calculator, Download, X, Search, Store, Percent, Wrench, CheckCircle, Calendar as CalendarIcon, Eye, ArrowUpDown } from "lucide-react";
 import { generateKitComparisonPDF } from "@/lib/pdf-comparison-generator";
 import { toast } from "sonner";
 
@@ -17,12 +17,11 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>([]);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  const systemsProducts = CONVOLTAJE_PRODUCTS.filter(
-    (p) => p.category === "Sistemas Solares Completos"
-  );
-  const powerstationProducts = CONVOLTAJE_PRODUCTS.filter(
-    (p) => p.category === "PowerStations"
-  );
+  // Estados del Mockup 2 (Tienda Mercado Cubano)
+  const [activeTab, setActiveTab] = useState<'tienda' | 'ofertas' | 'servicios' | 'resenas' | 'instalar'>('tienda');
+  const [sortOption, setSortOption] = useState<'mas_visitados' | 'precio_menor' | 'precio_mayor'>('mas_visitados');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (onRef) {
@@ -75,108 +74,194 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
     }
   };
 
+  // Filtrado y Ordenación de Productos
+  const filteredProducts = CONVOLTAJE_PRODUCTS.filter((p) => {
+    const matchesTab = activeTab === 'tienda' ? true
+      : activeTab === 'ofertas' ? (p.discount || p.originalPrice)
+      : true;
+    const matchesSearch = searchQuery.trim() === '' ? true
+      : p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesTab && matchesSearch;
+  }).sort((a, b) => {
+    if (sortOption === 'precio_menor') return a.price - b.price;
+    if (sortOption === 'precio_mayor') return b.price - a.price;
+    // Default: 'mas_visitados' (populares primero)
+    return (b.popular ? 1 : 0) - (a.popular ? 1 : 0);
+  });
+
   return (
     <section
       id="catalogo"
       ref={sectionRef}
-      className="py-16 lg:py-24 bg-gradient-to-b from-background to-muted/30 scroll-mt-20"
+      className="py-8 lg:py-16 bg-slate-900 text-white scroll-mt-20 font-sans"
     >
-      <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="mb-12 text-center">
-          <h2 className="font-display text-4xl lg:text-5xl text-primary mb-4">
-            ☀️ Convoltaje
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Energía confiable y personalizada. Paneles solares, baterías e
-            inversores de última generación para tu hogar o negocio.
-          </p>
-          <div className="mt-6 inline-block bg-secondary/10 border border-secondary/20 rounded-lg px-4 py-2">
-            <p className="text-sm font-accent text-secondary">
-              ⏱️ Instalación en 15 días (sujeta a disponibilidad del almacén)
-            </p>
-          </div>
-        </div>
-
-        {/* Sistemas Solares Completos */}
-        <div className="mb-16">
-          <h3 className="font-display text-2xl lg:text-3xl text-foreground mb-8">
-            Sistemas Solares Completos
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {systemsProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                whatsappNumber={WHATSAPP_NUMBERS.convoltaje}
-                onWhatsappClick={handleWhatsappClick}
-                onViewDetails={onViewDetails}
-                isComparing={selectedCompareIds.includes(product.id)}
-                onToggleCompare={handleToggleCompare}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* PowerStations */}
-        <div className="mb-12">
-          <h3 className="font-display text-2xl lg:text-3xl text-foreground mb-8">
-            Plantas Eléctricas por Baterías (PowerStations)
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {powerstationProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                whatsappNumber={WHATSAPP_NUMBERS.convoltaje}
-                onWhatsappClick={handleWhatsappClick}
-                onViewDetails={onViewDetails}
-                isComparing={selectedCompareIds.includes(product.id)}
-                onToggleCompare={handleToggleCompare}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Imagen de Samuel el Panel (Solo en Desktop - Lado Izquierdo) */}
-          <div className="hidden lg:col-span-5 lg:flex justify-center items-center">
-            <img 
-              src="/images/como te ayudo.png" 
-              alt="Samuel el Panel - ¿Cómo te ayudo?" 
-              className="max-h-[350px] w-auto object-contain hover:scale-[1.03] transition-transform duration-300 drop-shadow-2xl"
+      <div className="container mx-auto px-4 max-w-6xl">
+        
+        {/* ── 1. Hero Banner sobre la Tienda (Mockup 2) ─────────────────────────────────── */}
+        <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 bg-slate-950 border border-slate-800">
+          {/* Fondo Imagen del Equipo con Overlay Azul Gradient */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <img
+              src="/images/solucionapagon.jpg"
+              alt="Equipo de trabajo Convoltaje"
+              className="w-full h-full object-cover opacity-30 scale-105"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-blue-900/60 backdrop-blur-[1px]" />
           </div>
 
-          {/* Card Recuadro (Lado Derecho en Desktop) */}
-          <div className="lg:col-span-7 bg-gradient-to-r from-primary to-primary/80 rounded-[24px] p-6 md:p-8 lg:p-10 text-center lg:text-left text-white flex flex-col justify-center shadow-lg border border-white/5 h-full">
-            {/* Imagen de Samuel el Panel (Incrustada en Móvil - Parte Superior) */}
-            <div className="block lg:hidden flex justify-center mb-6">
-              <img 
-                src="/images/como te ayudo.png" 
-                alt="Samuel el Panel - ¿Cómo te ayudo?" 
-                className="max-h-[220px] w-auto object-contain drop-shadow-xl"
-              />
+          <div className="relative z-10 p-6 md:p-10 lg:p-12 flex flex-col items-start justify-center max-w-3xl">
+            <h1 className="text-3xl md:text-5xl font-black text-orange-500 tracking-tight leading-none mb-3 drop-shadow-md">
+              +900 Familias
+            </h1>
+            <h2 className="text-xl md:text-3xl font-extrabold text-orange-400 mb-4 drop-shadow-md">
+              complacidas por toda <span className="text-white">Cuba</span>
+            </h2>
+            <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-medium bg-slate-900/70 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
+              Con Voltaje surgió por la necesidad urgente de hacer llegar la luz a nuestros amigos, contactos, familiares y clientes que con el tiempo se volvieron todos, parte de nosotros.
+            </p>
+          </div>
+        </div>
+
+        {/* ── 2. Navbar de Píldoras (Mockup 2) ─────────────────────────────────── */}
+        <div className="bg-slate-950 p-2 rounded-2xl border border-slate-800 mb-6 shadow-lg flex items-center justify-between overflow-x-auto gap-2 scrollbar-none">
+          <button
+            onClick={() => setActiveTab('tienda')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
+              activeTab === 'tienda'
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Store size={16} /> Tienda
+          </button>
+
+          <button
+            onClick={() => setActiveTab('ofertas')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
+              activeTab === 'ofertas'
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Percent size={16} /> Ofertas
+          </button>
+
+          <button
+            onClick={() => setActiveTab('servicios')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
+              activeTab === 'servicios'
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Wrench size={16} /> Servicios
+          </button>
+
+          <button
+            onClick={() => setActiveTab('resenas')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
+              activeTab === 'resenas'
+                ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <CheckCircle size={16} /> Reseñas
+          </button>
+
+          <button
+            onClick={onCalculatorClick}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800 transition-all whitespace-nowrap"
+          >
+            <CalendarIcon size={16} /> Instalar
+          </button>
+        </div>
+
+        {/* ── 3. Filter Bar & Buscador (Mockup 2) ─────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+          {/* Ordenación Text & Dropdown */}
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 w-full md:w-auto">
+            <div className="flex items-center gap-1.5 font-bold text-orange-400">
+              <Eye size={14} />
+              <span>Mostrando artículos por orden de más visitados</span>
             </div>
 
-            <h3 className="font-display text-2xl lg:text-3xl mb-4">
-              ¿Necesitas una solución personalizada?
-            </h3>
-            <p className="text-base lg:text-lg mb-6 max-w-2xl opacity-90 leading-relaxed">
-              Usa nuestra Calculadora Solar Inteligente y descubre en minutos qué sistema se ajusta exactamente a tus necesidades.
-            </p>
-            <div>
-              <Button
-                onClick={onCalculatorClick}
-                className="w-full sm:w-auto font-accent text-base md:text-lg px-8 py-6 neon-btn"
+            <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">
+              <ArrowUpDown size={13} className="text-slate-400" />
+              <select
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as any)}
+                className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer"
               >
-                <Calculator className="w-5 h-5 mr-2 flex-shrink-0" />
-                Usar Calculadora Solar
-              </Button>
+                <option value="mas_visitados" className="bg-slate-900 text-white">Más visitados</option>
+                <option value="precio_menor" className="bg-slate-900 text-white">Precio: Menor a Mayor</option>
+                <option value="precio_mayor" className="bg-slate-900 text-white">Precio: Mayor a Menor</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Input de Búsqueda Rápida */}
+          <div className="relative w-full md:w-72">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar producto rápidamente"
+              className="w-full bg-slate-900 text-white text-xs placeholder-slate-500 pl-4 pr-10 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
+            />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 bg-orange-600 text-white p-1.5 rounded-lg">
+              <Search size={14} />
             </div>
           </div>
         </div>
+
+        {/* ── 4. Product Grid Mercado Cubano (2x4 Responsivo) ─────────────────────────────────── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              whatsappNumber={WHATSAPP_NUMBERS.convoltaje}
+              onWhatsappClick={handleWhatsappClick}
+              onViewDetails={onViewDetails}
+              isComparing={selectedCompareIds.includes(product.id)}
+              onToggleCompare={handleToggleCompare}
+            />
+          ))}
+        </div>
+
+        {/* ── 5. Footer con Paginación de 7 Dots (Mockup 2) ─────────────────────────────────── */}
+        <div className="flex items-center justify-center gap-2.5 py-6">
+          {[1, 2, 3, 4, 5, 6, 7].map((dotIndex) => (
+            <button
+              key={dotIndex}
+              onClick={() => setCurrentPage(dotIndex)}
+              className={`h-3 rounded-full transition-all duration-300 ${
+                dotIndex === currentPage
+                  ? "w-8 bg-orange-500 shadow-md shadow-orange-500/50"
+                  : "w-3 bg-slate-700 hover:bg-slate-500"
+              }`}
+              aria-label={`Página ${dotIndex}`}
+            />
+          ))}
+        </div>
+
+        {/* CTA Section (Calculadora Solar) */}
+        <div className="mt-12 bg-gradient-to-r from-slate-950 to-blue-950 border border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+          <div className="text-center md:text-left">
+            <h3 className="text-2xl font-black text-white mb-2">¿Necesitas una solución personalizada?</h3>
+            <p className="text-xs md:text-sm text-slate-300 max-w-xl">
+              Usa nuestra Calculadora Solar Inteligente y descubre en minutos qué sistema se ajusta a tus necesidades.
+            </p>
+          </div>
+          <Button
+            onClick={onCalculatorClick}
+            className="bg-orange-600 hover:bg-orange-700 text-white font-black text-sm px-6 py-4 h-auto rounded-2xl shadow-xl uppercase tracking-wider shrink-0"
+          >
+            <Calculator className="w-4 h-4 mr-2" />
+            Usar Calculadora
+          </Button>
+        </div>
+
       </div>
 
       {/* Floating Bar para Descargar Comparativa PDF (Mobile-First) */}
@@ -214,3 +299,4 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
     </section>
   );
 }
+
