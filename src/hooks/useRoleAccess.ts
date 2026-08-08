@@ -28,6 +28,12 @@ const PERMISSIONS_MATRIX: Record<UserRole, AdminView[]> = {
   ],
   contable: [
     'inicio', 'finanzas', 'almacen', 'utiles', 'manuales', 'plantillas'
+  ],
+  comprador: [
+    'inicio', 'almacen', 'finanzas', 'utiles', 'manuales'
+  ],
+  designado: [
+    'inicio', 'almacen', 'pipeline', 'utiles', 'manuales'
   ]
 };
 
@@ -53,6 +59,8 @@ export function useRoleAccess(role: UserRole | undefined) {
     isProyectista: role === 'proyectista',
     isContable: role === 'contable',
     isAlmacenero: role === 'almacenero',
-    isTransportista: role === 'transportista'
+    isTransportista: role === 'transportista',
+    isComprador: role === 'comprador',
+    isDesignado: role === 'designado'
   };
 }
