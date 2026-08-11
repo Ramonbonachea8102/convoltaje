@@ -4,7 +4,7 @@ import { useLocation } from 'wouter';
 import { Settings, LogIn, ShieldAlert } from 'lucide-react';
 
 export default function DashboardLogin() {
-  const { availableUsers, login, fetchUsers, isLoading, error: storeError } = useAuthStore();
+  const { availableUsers, login, loginWithCredentials, sendPasswordReset, fetchUsers, isLoading, error: storeError } = useAuthStore();
   const [, setLocation] = useLocation();
   
   useEffect(() => {
@@ -13,24 +13,49 @@ export default function DashboardLogin() {
   
   // States
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanPhone = phone.replace(/\D/g, '');
+    setError('');
+    setResetSuccess('');
+    setIsSubmitting(true);
     
-    // Validar el acceso general (cuenta de prueba para José / Samuel)
-    if ((cleanPhone === '5354815692' || cleanPhone === '54815692') && password === '5692') {
-      setIsAuthenticated(true);
-    } 
-    // Acceso de admin por defecto (simulador rápido)
-    else if (phone === 'admin' && password === 'admin') {
-      setIsAuthenticated(true);
+    // Autenticación real mediante Supabase Auth
+    try {
+      const success = await loginWithCredentials(email, password);
+      if (success) {
+        setIsAuthenticated(true);
+      } else {
+        setError(storeError || 'Credenciales incorrectas. Verifica tu email y contraseña.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Error al conectar con Supabase Auth.');
+    } finally {
+      setIsSubmitting(false);
     }
-    else {
-      setError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email || !email.includes('@')) {
+      setError('Por favor ingresa un correo electrónico válido para enviar la invitación/restablecimiento.');
+      return;
+    }
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const ok = await sendPasswordReset(email);
+      if (ok) {
+        setResetSuccess(`Se envió un enlace de configuración/acceso a ${email}`);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Error al enviar el correo de recuperación.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -142,33 +167,46 @@ export default function DashboardLogin() {
         <form onSubmit={handleSubmit} className="w-full space-y-4">
           <div>
             <input
-              type="text"
-              placeholder="Usuario"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-4 py-3.5 bg-[#2c4060] border border-transparent focus:border-[#00D9FF] rounded-lg text-white placeholder-[#8e9aab] outline-none transition-colors font-medium"
+              type="email"
+              placeholder="Correo electrónico / Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3.5 bg-[#2c4060] border border-transparent focus:border-[#00D9FF] rounded-lg text-white placeholder-[#8e9aab] outline-none transition-colors font-medium text-sm"
               required
             />
           </div>
           <div>
             <input
               type="password"
-              placeholder="Contraseña"
+              placeholder="Contraseña de Supabase"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3.5 bg-[#2c4060] border border-transparent focus:border-[#00D9FF] rounded-lg text-white placeholder-[#8e9aab] outline-none transition-colors font-medium"
+              className="w-full px-4 py-3.5 bg-[#2c4060] border border-transparent focus:border-[#00D9FF] rounded-lg text-white placeholder-[#8e9aab] outline-none transition-colors font-medium text-sm"
               required
             />
           </div>
 
-          {error && <p className="text-[#FF6B35] text-xs text-center font-medium">{error}</p>}
+          {error && <p className="text-[#FF6B35] text-xs text-center font-medium bg-[#FF6B35]/10 p-2.5 rounded-lg border border-[#FF6B35]/20">{error}</p>}
+          {resetSuccess && <p className="text-[#00D9FF] text-xs text-center font-medium bg-[#00D9FF]/10 p-2.5 rounded-lg border border-[#00D9FF]/20">{resetSuccess}</p>}
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-[#00D9FF] hover:bg-[#00bfe6] text-[#0F3A7D] font-bold rounded-lg transition-colors mt-2 text-[15px]"
+            disabled={isSubmitting}
+            className="w-full py-3.5 bg-[#00D9FF] hover:bg-[#00bfe6] disabled:opacity-50 text-[#0F3A7D] font-bold rounded-lg transition-colors mt-2 text-[15px]"
           >
-            Entrar
+            {isSubmitting ? 'Verificando en Supabase Auth...' : 'Entrar al Panel'}
           </button>
+
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              onClick={handlePasswordReset}
+              disabled={isSubmitting}
+              className="text-xs text-[#00D9FF]/80 hover:text-[#00D9FF] transition-colors underline font-medium"
+            >
+              ¿Primer ingreso o dejàs crear contraseña? Enviar enlace por Email
+            </button>
+          </div>
         </form>
 
         <div className="mt-12 flex flex-col items-center gap-2">

@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+import { supabase } from '../supabase';
 
 export type MakeEventType = 
   | 'OT_CREATED'
@@ -18,35 +18,26 @@ export interface MakeEventPayload {
 
 export const makeService = {
   /**
-   * Envía un evento al webhook de Make.com
-   * No bloquea la ejecución (fire and forget), pero registra errores si falla.
+   * Envía un evento a Make.com a través de la Supabase Edge Function protegida ('notify-make')
+   * La Edge Function autentica al usuario mediante JWT y usa el secreto MAKE_WEBHOOK_URL del servidor.
    */
   notify: async (payload: Omit<MakeEventPayload, 'timestamp'>) => {
-    const webhookUrl = import.meta.env.VITE_MAKE_WEBHOOK_URL;
-    
-    if (!webhookUrl) {
-      console.warn('VITE_MAKE_WEBHOOK_URL no está definido. Ignorando notificación a Make.');
-      return;
-    }
-
     const fullPayload: MakeEventPayload = {
       ...payload,
       timestamp: new Date().toISOString()
     };
 
     try {
-      // Usamos fetch sin esperar confirmación bloqueante en la UI
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(fullPayload)
-      }).catch(error => {
-        console.error('Error enviando notificación a Make:', error);
+      // Invocamos la Edge Function protegida de Supabase sin exponer URLs ni tokens en el cliente
+      const { error } = await supabase.functions.invoke('notify-make', {
+        body: fullPayload
       });
+
+      if (error) {
+        console.warn('Advertencia o error al invocar Edge Function notify-make:', error);
+      }
     } catch (error) {
-      console.error('Error al intentar notificar a Make:', error);
+      console.error('Error al notificar evento vía Supabase Edge Function:', error);
     }
   },
 

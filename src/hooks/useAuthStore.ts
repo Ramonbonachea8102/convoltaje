@@ -24,12 +24,14 @@ interface AuthState {
   error: string | null;
   fetchUsers: () => Promise<void>;
   login: (userId: string) => void;
-  logout: () => void;
+  loginWithCredentials: (email: string, password: string) => Promise<boolean>;
+  sendPasswordReset: (email: string) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       currentUser: null,
       availableUsers: [],
       isLoading: false,
@@ -50,8 +52,52 @@ export const useAuthStore = create<AuthState>()(
         const user = state.availableUsers.find(u => u.id === userId);
         return { currentUser: user || null };
       }),
+
+      loginWithCredentials: async (email: string, password: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const authData = await authService.signInWithEmailPassword(email, password);
+          const profiles = get().availableUsers.length > 0 ? get().availableUsers : await authService.getProfiles();
+          
+          // Buscar perfil asociado por ID de Supabase Auth o por Email
+          const userProfile = profiles.find(
+            p => p.id === authData.user?.id || p.name.toLowerCase() === email.split('@')[0].toLowerCase()
+          ) || {
+            id: authData.user?.id || 'auth-user',
+            name: authData.user?.email?.split('@')[0] || 'Usuario Autenticado',
+            role: (authData.user?.user_metadata?.role as UserRole) || 'comercial',
+            title: 'Miembro del Equipo',
+            avatar: '',
+          };
+
+          set({ currentUser: userProfile, isLoading: false });
+          return true;
+        } catch (err: any) {
+          set({ error: err.message || 'Error al iniciar sesión', isLoading: false });
+          return false;
+        }
+      },
+
+      sendPasswordReset: async (email: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          await authService.sendPasswordResetEmail(email);
+          set({ isLoading: false });
+          return true;
+        } catch (err: any) {
+          set({ error: err.message || 'Error al enviar invitación/restablecimiento', isLoading: false });
+          return false;
+        }
+      },
       
-      logout: () => set({ currentUser: null })
+      logout: async () => {
+        try {
+          await authService.signOut();
+        } catch (e) {
+          console.warn('Error durante el cierre de sesión de Supabase:', e);
+        }
+        set({ currentUser: null, error: null });
+      }
     }),
     {
       name: 'convoltaje-auth-storage-v3',

@@ -15,6 +15,45 @@ const MOCK_PROFILES: UserSession[] = [
 
 export const authService = {
   /**
+   * Autentica un usuario con email y contraseña mediante Supabase Auth
+   */
+  async signInWithEmailPassword(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Error al iniciar sesión.');
+    }
+
+    return data;
+  },
+
+  /**
+   * Envía un correo electrónico con enlace para restablecer o crear la contraseña
+   */
+  async sendPasswordResetEmail(email: string) {
+    const redirectUrl = `${window.location.origin}/admin/login`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Error al enviar enlace de recuperación.');
+    }
+
+    return true;
+  },
+
+  /**
+   * Cierra la sesión activa en Supabase Auth
+   */
+  async signOut() {
+    await supabase.auth.signOut();
+  },
+
+  /**
    * Obtiene todos los perfiles activos de la base de datos y los mapea al formato UserSession
    */
   async getProfiles(): Promise<UserSession[]> {
@@ -43,7 +82,6 @@ export const authService = {
         clientsCount: row.total_instalaciones || 0,
         reviewsCount: row.calificacion_promedio ? Math.round(Number(row.calificacion_promedio)) : 0,
         phone: row.telefono || '',
-        // Campos de UI que no están en BD pero la app espera
         avatarOrigin: 'center',
         avatarZoom: 1.0,
       }));
