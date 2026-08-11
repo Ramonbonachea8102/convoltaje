@@ -99,27 +99,29 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
         
         {/* ── 1. Hero Banner sobre la Tienda (Mockup 2) ─────────────────────────────────── */}
         <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-8 bg-slate-950 border border-slate-800">
-          {/* Fondo Imagen del Equipo con Overlay Azul Gradient */}
+          {/* Fondo Imagen del Equipo con Overlay Gradiente Lindo */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <img
               src="/Imagen_equipo-landingpage.jpg"
               alt="Equipo de trabajo Convoltaje"
-              className="w-full h-full object-cover opacity-40 scale-105"
+              className="w-full h-full object-cover opacity-75 object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-blue-900/60 backdrop-blur-[1px]" />
+            {/* Overlay gradiente horizontal que oscurece solo a la izquierda para el texto y deja clara la imagen a la derecha */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/70 to-slate-950/30 md:to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 p-6 md:p-10 lg:p-12 flex flex-col items-start justify-center max-w-3xl">
-            <span className="text-slate-400 font-bold text-xs md:text-sm tracking-wider uppercase mb-1 block drop-shadow-sm">
+            <span className="text-cyan-400 font-extrabold text-xs md:text-sm tracking-wider uppercase mb-1.5 block drop-shadow-md">
               Equipo de trabajo Convoltaje
             </span>
-            <h1 className="text-3xl md:text-5xl font-black text-orange-500 tracking-tight leading-none mb-3 drop-shadow-md">
+            <h1 className="text-3xl md:text-5xl font-black text-orange-500 tracking-tight leading-none mb-3 drop-shadow-lg">
               +900 Familias
             </h1>
-            <h2 className="text-xl md:text-3xl font-extrabold text-orange-400 mb-4 drop-shadow-md">
+            <h2 className="text-xl md:text-3xl font-extrabold text-orange-400 mb-4 drop-shadow-lg">
               complacidas por toda <span className="text-white">Cuba</span>
             </h2>
-            <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-medium bg-slate-900/80 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
+            <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-medium bg-slate-950/75 p-4 rounded-2xl border border-white/15 backdrop-blur-md max-w-xl shadow-lg">
               Con Voltaje surgió por la necesidad urgente de hacer llegar la luz a nuestros amigos, contactos, familiares y clientes que con el tiempo se volvieron todos, parte de nosotros.
             </p>
           </div>
