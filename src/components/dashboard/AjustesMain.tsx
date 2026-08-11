@@ -9,6 +9,7 @@ import { useSettingsStore, TeamMember, WhatsAppTemplate } from "@/hooks/useSetti
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
+import UserManagementPanel from "./admin/UserManagementPanel";
 
 // ─── Componente Sección ────────────────────────────────────────────────
 function Section({
@@ -168,9 +169,14 @@ export default function AjustesMain() {
       <div className="mb-2">
         <h2 className="text-lg font-bold">Configuración del Sistema</h2>
         <p className="text-white/50 text-xs">
-          Panel de administración central. Cambios en tasas se reflejan en tiempo real en Finanzas.
+          Panel de administración central. Gestión de usuarios en Supabase Auth, tasas de cambio y plantillas.
         </p>
       </div>
+
+      {/* ─── GESTIÓN DE USUARIOS (SUPABASE AUTH) ───────────────────────── */}
+      {isAdmin && (
+        <UserManagementPanel />
+      )}
 
       {/* ─── TASA DE CAMBIO ─────────────────────────────── */}
       {isAdminOrContable && (

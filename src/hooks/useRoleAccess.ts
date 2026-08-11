@@ -8,6 +8,11 @@ const PERMISSIONS_MATRIX: Record<UserRole, AdminView[]> = {
     'quejas', 'ajustes', 'calculadora', 'historial', 'plantillas', 'errores',
     'manuales', 'asignaciones', 'validacion', 'herramientas', 'utiles', 'entregas', 'levantamiento'
   ],
+  ceo: [
+    'inicio', 'pipeline', 'calendario', 'almacen', 'finanzas', 'instalaciones',
+    'quejas', 'ajustes', 'calculadora', 'historial', 'plantillas', 'errores',
+    'manuales', 'asignaciones', 'validacion', 'herramientas', 'utiles', 'entregas', 'levantamiento'
+  ],
   comercial: [
     'inicio', 'pipeline', 'calendario', 'quejas', 'calculadora',
     'plantillas', 'utiles', 'manuales', 'levantamiento'
