@@ -102,21 +102,24 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
           {/* Fondo Imagen del Equipo con Overlay Azul Gradient */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <img
-              src="/images/solucionapagon.jpg"
+              src="/Imagen_equipo-landingpage.jpg"
               alt="Equipo de trabajo Convoltaje"
-              className="w-full h-full object-cover opacity-30 scale-105"
+              className="w-full h-full object-cover opacity-40 scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-blue-900/60 backdrop-blur-[1px]" />
           </div>
 
           <div className="relative z-10 p-6 md:p-10 lg:p-12 flex flex-col items-start justify-center max-w-3xl">
+            <span className="text-slate-400 font-bold text-xs md:text-sm tracking-wider uppercase mb-1 block drop-shadow-sm">
+              Equipo de trabajo Convoltaje
+            </span>
             <h1 className="text-3xl md:text-5xl font-black text-orange-500 tracking-tight leading-none mb-3 drop-shadow-md">
               +900 Familias
             </h1>
             <h2 className="text-xl md:text-3xl font-extrabold text-orange-400 mb-4 drop-shadow-md">
               complacidas por toda <span className="text-white">Cuba</span>
             </h2>
-            <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-medium bg-slate-900/70 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
+            <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-medium bg-slate-900/80 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
               Con Voltaje surgió por la necesidad urgente de hacer llegar la luz a nuestros amigos, contactos, familiares y clientes que con el tiempo se volvieron todos, parte de nosotros.
             </p>
           </div>
