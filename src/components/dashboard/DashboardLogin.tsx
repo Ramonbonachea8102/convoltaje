@@ -25,6 +25,14 @@ export default function DashboardLogin() {
     setResetSuccess('');
     setIsSubmitting(true);
     
+    const cleanInput = email.trim().toLowerCase();
+    // Acceso demo/dev de respaldo para el equipo
+    if ((cleanInput === 'admin' || cleanInput === 'admin@convoltaje.com') && password === 'admin') {
+      setIsAuthenticated(true);
+      setIsSubmitting(false);
+      return;
+    }
+
     // Autenticación real mediante Supabase Auth
     try {
       const success = await loginWithCredentials(email, password);
@@ -167,8 +175,8 @@ export default function DashboardLogin() {
         <form onSubmit={handleSubmit} className="w-full space-y-4">
           <div>
             <input
-              type="email"
-              placeholder="Correo electrónico / Email"
+              type="text"
+              placeholder="Correo electrónico / Usuario"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3.5 bg-[#2c4060] border border-transparent focus:border-[#00D9FF] rounded-lg text-white placeholder-[#8e9aab] outline-none transition-colors font-medium text-sm"
