@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
-import AboutUsPlaceholder from "./components/AboutUsPlaceholder";
 import ConvoltajeSection from "./components/ConvoltajeSection";
 import FAQSection from "./components/FAQSection";
 import Footer from "./components/Footer";
@@ -98,7 +97,6 @@ function App() {
             <>
               <Header onResetBrand={() => setSelectedBrand("none")} />
               <HeroSection onExploreClick={handleExploreClick} onCalculatorClick={handleCalculatorClick} />
-              <AboutUsPlaceholder />
               <ConvoltajeSection 
                 onCalculatorClick={handleCalculatorClick}
                 onViewDetails={(product) => setSelectedProductSlug(product.slug)}
