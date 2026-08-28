@@ -53,15 +53,15 @@ export default function HeroSection({ onExploreClick, onCalculatorClick }: HeroS
 
             {/* Trust Badges */}
             <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-6 text-sm justify-center items-center flex-wrap">
-              <div className="flex items-center gap-2 text-white/90 font-medium">
+              <div className="flex items-center gap-2 text-[#FF6B35] font-semibold">
                 <Users className="w-5 h-5 text-[#00D9FF] flex-shrink-0" />
                 <span>Instalaciones en toda Cuba</span>
               </div>
-              <div className="flex items-center gap-2 text-white/90 font-medium">
+              <div className="flex items-center gap-2 text-[#FF6B35] font-semibold">
                 <Calendar className="w-5 h-5 text-[#00D9FF] flex-shrink-0" />
                 <span>Entrega e instalación rápida</span>
               </div>
-              <div className="flex items-center gap-2 text-white/90 font-medium">
+              <div className="flex items-center gap-2 text-[#FF6B35] font-semibold">
                 <ShieldCheck className="w-5 h-5 text-[#00D9FF] flex-shrink-0" />
                 <span>Garantía y respaldo técnico</span>
               </div>
