@@ -99,6 +99,7 @@ export default function OperationsPipeline() {
   const [activeStage, setActiveStage] = useState<DealStage>('Contacto');
   const [selectedDeal, setSelectedDeal] = useState<ClientDeal | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'kanban' | 'capsulas'>('kanban');
 
   // Estados para el Modal de Reintegro
   const [showRefundModal, setShowRefundModal] = useState(false);
@@ -203,11 +204,37 @@ export default function OperationsPipeline() {
   return (
     <div className="w-full flex flex-col font-sans text-white pb-12">
       
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white mb-1">Pipeline de Clientes</h2>
-        <p className="text-white/60 text-xs">
-          Visualiza y organiza tus proyectos según su fase de progreso.
-        </p>
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div>
+          <h2 className="text-xl font-bold text-white mb-0.5">Pipeline de Clientes</h2>
+          <p className="text-white/60 text-xs">
+            Visualiza y organiza tus proyectos según su fase de progreso.
+          </p>
+        </div>
+
+        {/* Toggle de Modo de Vista */}
+        <div className="flex bg-black/30 border border-white/10 rounded-xl p-1 gap-1">
+          <button
+            onClick={() => setViewMode('kanban')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === 'kanban' 
+                ? 'bg-[#00D9FF] text-[#0b1b33] shadow-md' 
+                : 'text-white/60 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Trello Kanban
+          </button>
+          <button
+            onClick={() => setViewMode('capsulas')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === 'capsulas' 
+                ? 'bg-[#00D9FF] text-[#0b1b33] shadow-md' 
+                : 'text-white/60 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Cápsulas
+          </button>
+        </div>
       </div>
 
       {/* Input de Búsqueda */}
@@ -222,31 +249,149 @@ export default function OperationsPipeline() {
         />
       </div>
 
-      {/* Grid de Selector de Etapas (Cápsulas) */}
-      <div className="grid grid-cols-3 gap-2 mb-6">
-        {STAGES.map((stage) => {
-          const count = deals.filter(d => d.stage === stage).length;
-          const isActive = activeStage === stage;
-          
-          return (
-            <button
-              key={stage}
-              onClick={() => {
-                setActiveStage(stage);
-                setSelectedDeal(null); // Resetear detalle
-              }}
-              className={`rounded-xl py-2.5 px-1 text-center border transition-all flex flex-col items-center justify-center gap-1
-                ${isActive 
-                  ? `${STAGE_COLORS[stage]} border-transparent font-bold shadow-lg shadow-black/20` 
-                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
-                }`}
-            >
-              <span className="text-[10px] uppercase tracking-wider font-semibold truncate max-w-full px-1">{stage}</span>
-              <span className="text-xs font-mono font-bold bg-black/15 px-2 py-0.5 rounded-full">{count}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* VISTA 1: TABLERO TRELLO KANBAN */}
+      {viewMode === 'kanban' && (
+        <div className="w-full space-y-3 mb-6">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs text-white/50 font-medium">
+              Desliza horizontalmente ➔ para moverte entre las 5 fases del Pipeline
+            </span>
+            <span className="text-[10px] bg-[#00D9FF]/20 text-[#00D9FF] px-2 py-0.5 rounded-full font-mono font-bold">
+              {deals.length} Clientes Totales
+            </span>
+          </div>
+
+          <div className="flex gap-3 overflow-x-auto snap-x pb-4 scrollbar-none max-w-full">
+            {STAGES.map((stage) => {
+              const searchFilteredDeals = deals.filter(d => 
+                d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                d.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                d.phone.includes(searchTerm)
+              );
+              const stageDealsList = searchFilteredDeals.filter(d => d.stage === stage);
+
+              return (
+                <div
+                  key={stage}
+                  className="w-[280px] shrink-0 snap-start bg-[#071630]/70 border border-white/10 rounded-2xl p-3 flex flex-col gap-3 shadow-xl"
+                >
+                  {/* Header de columna Trello */}
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <span className={`text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${STAGE_COLORS[stage]}`}>
+                      {stage}
+                    </span>
+                    <span className="text-xs font-mono font-bold bg-white/15 px-2.5 py-0.5 rounded-full text-white">
+                      {stageDealsList.length}
+                    </span>
+                  </div>
+
+                  {/* Tarjetas del Kanban */}
+                  <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[550px] pr-1">
+                    {stageDealsList.length > 0 ? (
+                      stageDealsList.map((deal) => (
+                        <div
+                          key={deal.id}
+                          onClick={() => setSelectedDeal(deal)}
+                          className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col gap-2.5 group shadow-md active:scale-[0.98] ${
+                            selectedDeal?.id === deal.id
+                              ? 'bg-[#0a2e6b] border-[#00D9FF] text-white ring-1 ring-[#00D9FF]/30'
+                              : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-white/90'
+                          }`}
+                        >
+                          {/* Top: Avatar + Nombre + OT Ref */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-7 h-7 rounded-lg bg-white/10 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                {deal.name.charAt(0)}
+                              </div>
+                              <h4 className="text-xs font-bold text-white truncate group-hover:text-[#00D9FF] transition-colors">
+                                {deal.name}
+                              </h4>
+                            </div>
+                            {deal.otRef && (
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#00D9FF]/20 text-[#00D9FF] font-black shrink-0">
+                                {deal.otRef}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-[11px] text-white/70 line-clamp-1 font-medium">
+                            {deal.company}
+                          </p>
+
+                          {/* Subetapa Badge */}
+                          {deal.substage && SUBSTAGE_LABELS[deal.substage] && (
+                            <span className={`text-[9px] px-2 py-0.5 rounded-lg border font-bold self-start ${SUBSTAGE_LABELS[deal.substage].color}`}>
+                              {SUBSTAGE_LABELS[deal.substage].label}
+                            </span>
+                          )}
+
+                          {/* Footer de Tarjeta: Precio + Mover de Etapa */}
+                          <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[11px] gap-1">
+                            <span className="font-mono font-bold text-[#00FF66] shrink-0">
+                              ${deal.value.toLocaleString()} USD
+                            </span>
+
+                            {/* Selector para Mover de Fase al Instante */}
+                            <div 
+                              className="relative"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <select
+                                value={deal.stage}
+                                onChange={(e) => handleStageChange(deal.id, e.target.value as DealStage)}
+                                className="bg-[#0b1b33] hover:bg-[#0c2447] border border-white/20 text-[10px] text-[#00D9FF] font-bold rounded-lg px-2 py-1 outline-none cursor-pointer transition-colors"
+                              >
+                                {STAGES.map((s) => (
+                                  <option key={s} value={s} className="bg-[#0b1b33] text-white">
+                                    Mover a {s}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="border border-dashed border-white/10 rounded-xl p-6 text-center text-white/30 text-[11px] py-8">
+                        Sin clientes en esta fase
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* VISTA 2: CÁPSULAS CLÁSICAS */}
+      {viewMode === 'capsulas' && (
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          {STAGES.map((stage) => {
+            const count = deals.filter(d => d.stage === stage).length;
+            const isActive = activeStage === stage;
+            
+            return (
+              <button
+                key={stage}
+                onClick={() => {
+                  setActiveStage(stage);
+                  setSelectedDeal(null); // Resetear detalle
+                }}
+                className={`rounded-xl py-2.5 px-1 text-center border transition-all flex flex-col items-center justify-center gap-1
+                  ${isActive 
+                    ? `${STAGE_COLORS[stage]} border-transparent font-bold shadow-lg shadow-black/20` 
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                  }`}
+              >
+                <span className="text-[10px] uppercase tracking-wider font-semibold truncate max-w-full px-1">{stage}</span>
+                <span className="text-xs font-mono font-bold bg-black/15 px-2 py-0.5 rounded-full">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Stack de Lista y Detalles */}
       <div className="space-y-6">

@@ -257,7 +257,7 @@ export default function MobileHomeGrid({ onNavigate, onSelectView }: MobileHomeG
                 <span className="w-2 h-2 rounded-full bg-amber-400" /> Seguimiento Diario
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: 'clientes', view: 'pipeline' as AdminView, label: 'Clientes', icon: UserPlus, badge: openDealsCount },
                   { id: 'calendario', view: 'calendario' as AdminView, label: 'Calendario', icon: Calendar, badge: todayInstallationsCount },
@@ -266,19 +266,17 @@ export default function MobileHomeGrid({ onNavigate, onSelectView }: MobileHomeG
                   <button
                     key={tile.id}
                     onClick={() => handleNavigate(tile.view)}
-                    className="bg-white/5 hover:bg-white/10 border border-white/15 rounded-2xl p-5 text-left transition-all group flex flex-col justify-between backdrop-blur-md relative overflow-hidden active:scale-95 shadow-lg"
+                    className="bg-white/5 hover:bg-white/10 border border-white/15 rounded-2xl py-3.5 px-1.5 text-center transition-all group flex flex-col items-center justify-center gap-1.5 backdrop-blur-md relative overflow-hidden active:scale-95 shadow-md min-h-[92px]"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-[#00D9FF] group-hover:scale-110 transition-transform">
-                        <tile.icon size={24} />
-                      </div>
-                      {tile.badge !== undefined && tile.badge > 0 && (
-                        <span className="bg-[#FF6B35] text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-md">
-                          {tile.badge}
-                        </span>
-                      )}
+                    {tile.badge !== undefined && tile.badge > 0 && (
+                      <span className="absolute top-1.5 right-1.5 bg-[#FF6B35] text-white font-black text-[10px] px-1.5 py-0.5 rounded-full shadow-md z-10 font-mono">
+                        {tile.badge}
+                      </span>
+                    )}
+                    <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-[#00D9FF] group-hover:scale-110 transition-transform shrink-0">
+                      <tile.icon size={18} />
                     </div>
-                    <span className="font-bold text-base text-white mt-4 group-hover:text-[#00D9FF] transition-colors">
+                    <span className="font-bold text-[11px] text-white group-hover:text-[#00D9FF] transition-colors leading-tight truncate w-full px-1">
                       {tile.label}
                     </span>
                   </button>
@@ -292,7 +290,7 @@ export default function MobileHomeGrid({ onNavigate, onSelectView }: MobileHomeG
                 <span className="w-2 h-2 rounded-full bg-[#00D9FF]" /> Estados Generales
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: 'inventario', view: 'almacen' as AdminView, label: 'Inventario', icon: Package, badge: lowStockCount },
                   { id: 'pagos', view: 'finanzas' as AdminView, label: 'Pagos', icon: DollarSign, badge: pendingPaymentsCount },
@@ -301,19 +299,17 @@ export default function MobileHomeGrid({ onNavigate, onSelectView }: MobileHomeG
                   <button
                     key={tile.id}
                     onClick={() => handleNavigate(tile.view)}
-                    className="bg-white/5 hover:bg-white/10 border border-white/15 rounded-2xl p-5 text-left transition-all group flex flex-col justify-between backdrop-blur-md relative overflow-hidden active:scale-95 shadow-lg"
+                    className="bg-white/5 hover:bg-white/10 border border-white/15 rounded-2xl py-3.5 px-1.5 text-center transition-all group flex flex-col items-center justify-center gap-1.5 backdrop-blur-md relative overflow-hidden active:scale-95 shadow-md min-h-[92px]"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-[#00D9FF] group-hover:scale-110 transition-transform">
-                        <tile.icon size={24} />
-                      </div>
-                      {tile.badge !== undefined && tile.badge > 0 && (
-                        <span className="bg-[#00D9FF] text-slate-950 font-black text-xs px-2.5 py-1 rounded-full shadow-md">
-                          {tile.badge}
-                        </span>
-                      )}
+                    {tile.badge !== undefined && tile.badge > 0 && (
+                      <span className="absolute top-1.5 right-1.5 bg-[#00D9FF] text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded-full shadow-md z-10 font-mono">
+                        {tile.badge}
+                      </span>
+                    )}
+                    <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-[#00D9FF] group-hover:scale-110 transition-transform shrink-0">
+                      <tile.icon size={18} />
                     </div>
-                    <span className="font-bold text-base text-white mt-4 group-hover:text-[#00D9FF] transition-colors">
+                    <span className="font-bold text-[11px] text-white group-hover:text-[#00D9FF] transition-colors leading-tight truncate w-full px-1">
                       {tile.label}
                     </span>
                   </button>
@@ -327,7 +323,7 @@ export default function MobileHomeGrid({ onNavigate, onSelectView }: MobileHomeG
                 <span className="w-2 h-2 rounded-full bg-emerald-400" /> Herramientas Oportunas
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: 'calculadora', view: 'calculadora' as AdminView, label: 'Calculadora', icon: Calculator },
                   { id: 'multimedias', view: 'plantillas' as AdminView, label: 'Multimedias', icon: FileText },
@@ -336,14 +332,12 @@ export default function MobileHomeGrid({ onNavigate, onSelectView }: MobileHomeG
                   <button
                     key={tile.id}
                     onClick={() => handleNavigate(tile.view)}
-                    className="bg-white/5 hover:bg-white/10 border border-white/15 rounded-2xl p-5 text-left transition-all group flex flex-col justify-between backdrop-blur-md relative overflow-hidden active:scale-95 shadow-lg"
+                    className="bg-white/5 hover:bg-white/10 border border-white/15 rounded-2xl py-3.5 px-1.5 text-center transition-all group flex flex-col items-center justify-center gap-1.5 backdrop-blur-md relative overflow-hidden active:scale-95 shadow-md min-h-[92px]"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-[#00D9FF] group-hover:scale-110 transition-transform">
-                        <tile.icon size={24} />
-                      </div>
+                    <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-[#00D9FF] group-hover:scale-110 transition-transform shrink-0">
+                      <tile.icon size={18} />
                     </div>
-                    <span className="font-bold text-base text-white mt-4 group-hover:text-[#00D9FF] transition-colors">
+                    <span className="font-bold text-[11px] text-white group-hover:text-[#00D9FF] transition-colors leading-tight truncate w-full px-1">
                       {tile.label}
                     </span>
                   </button>

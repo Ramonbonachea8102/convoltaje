@@ -10,7 +10,7 @@ import { useAuthStore } from "@/hooks/useAuthStore";
 import { makeService } from "@/lib/services/makeService";
 import { toast } from "sonner";
 
-type CalendarViewMode = 'semana' | 'mes' | 'hoy' | 'manana';
+type CalendarViewMode = 'semana' | 'kanban' | 'mes' | 'hoy' | 'manana';
 
 // Helpers para generar textos y colores de píldoras al estilo de la imagen de referencia
 const getEventUserCode = (event: CalendarEvent) => {
@@ -321,8 +321,8 @@ export default function CalendarCore() {
         </div>
 
         {/* Selector de Modos de Vista */}
-        <div className="grid grid-cols-4 gap-1 bg-black/25 rounded-2xl p-1 border border-white/5">
-          {(['semana', 'mes', 'hoy', 'manana'] as CalendarViewMode[]).map((mode) => (
+        <div className="grid grid-cols-5 gap-1 bg-black/25 rounded-2xl p-1 border border-white/5">
+          {(['semana', 'kanban', 'mes', 'hoy', 'manana'] as CalendarViewMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => {
@@ -339,7 +339,7 @@ export default function CalendarCore() {
                   : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
             >
-              {mode === 'manana' ? 'Mañana' : mode}
+              {mode === 'kanban' ? 'Trello Kanban' : mode === 'manana' ? 'Mañana' : mode}
             </button>
           ))}
         </div>
@@ -506,6 +506,124 @@ export default function CalendarCore() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Vista Tablero Trello Kanban */}
+        {viewMode === 'kanban' && (
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <span className="text-xs text-white/50 font-medium">
+                Desliza horizontalmente ➔ para ver los días de la semana
+              </span>
+              <span className="text-[10px] bg-[#00D9FF]/20 text-[#00D9FF] px-2 py-0.5 rounded-full font-mono font-bold">
+                7 Días Kanban
+              </span>
+            </div>
+
+            <div className="flex gap-3 overflow-x-auto snap-x pb-4 scrollbar-none max-w-full">
+              {weekDays.map((day) => {
+                const dateStr = format(day, "yyyy-MM-dd");
+                const dayEvents = getEventsForDate(day);
+                const dayName = format(day, "EEEE", { locale: es });
+                const dayNumber = format(day, "d MMM", { locale: es });
+                const isToday = isSameDay(day, new Date());
+
+                return (
+                  <div
+                    key={dateStr}
+                    className={`w-[270px] shrink-0 snap-start rounded-2xl border flex flex-col gap-3 p-3 shadow-xl transition-all ${
+                      isToday 
+                        ? 'bg-[#0a2e6b]/60 border-[#00D9FF]/40 ring-1 ring-[#00D9FF]/20' 
+                        : 'bg-[#071630]/60 border-white/10'
+                    }`}
+                  >
+                    {/* Header de Columna Trello */}
+                    <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                      <div className="flex items-center gap-2 truncate">
+                        <span className={`text-xs font-black uppercase tracking-wider ${isToday ? 'text-[#00D9FF]' : 'text-white'}`}>
+                          {dayName}
+                        </span>
+                        <span className="text-[10px] text-white/40 font-mono font-bold">
+                          {dayNumber}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] bg-white/15 text-white/90 px-2 py-0.5 rounded-full font-mono font-bold">
+                          {dayEvents.length}
+                        </span>
+                        <button
+                          onClick={() => handleDayClick(day)}
+                          className="w-6 h-6 rounded-lg bg-white/10 hover:bg-[#00D9FF] hover:text-[#0b1b33] text-white flex items-center justify-center transition-colors"
+                          title="Añadir obra a este día"
+                        >
+                          <Plus size={12} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Tarjetas del Kanban */}
+                    <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[500px] pr-1">
+                      {dayEvents.length > 0 ? (
+                        dayEvents.map((event) => {
+                          const userCode = getEventUserCode(event);
+                          const systemCode = getEventSystemCode(event);
+                          const pillColorClass = getEventPillColor(event);
+
+                          return (
+                            <div
+                              key={event.id}
+                              onClick={() => handleEventClick(event)}
+                              className="w-full text-left p-3.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-[#00D9FF]/40 transition-all cursor-pointer group shadow-md active:scale-[0.98] flex flex-col gap-2"
+                            >
+                              {/* Píldora estilo referencia */}
+                              <div className={`w-fit py-1 px-3 rounded-lg text-[10px] font-black uppercase shadow-sm flex items-center gap-1 ${pillColorClass}`}>
+                                <span>{userCode}</span>
+                                <span>·</span>
+                                <span>{systemCode}</span>
+                              </div>
+
+                              <h5 className="text-xs font-bold text-white group-hover:text-[#00D9FF] transition-colors leading-snug line-clamp-2">
+                                {event.title}
+                              </h5>
+
+                              <div className="flex items-center justify-between text-[11px] text-white/60 pt-1 border-t border-white/5">
+                                <span className="flex items-center gap-1 text-[#00D9FF] font-medium">
+                                  <Clock size={11} />
+                                  {event.time || "09:00"}
+                                </span>
+                                {event.clientName && (
+                                  <span className="truncate max-w-[120px] font-semibold text-white/80">
+                                    {event.clientName}
+                                  </span>
+                                )}
+                              </div>
+
+                              {event.location && (
+                                <p className="text-[10px] text-white/40 flex items-center gap-1 truncate">
+                                  <MapPin size={10} className="shrink-0" />
+                                  <span className="truncate">{event.location}</span>
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="border border-dashed border-white/10 rounded-xl p-6 text-center text-white/30 text-[11px] py-8 flex flex-col items-center gap-1">
+                          <span>Sin obras agendadas</span>
+                          <button
+                            onClick={() => handleDayClick(day)}
+                            className="text-[10px] text-[#00D9FF] hover:underline mt-1 font-semibold"
+                          >
+                            + Agregar obra
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
