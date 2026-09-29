@@ -34,3 +34,4 @@ manus-storage/
 # MCP config (contains API keys)
 .agents/mcp_config.json
 tsconfig.tsbuildinfo
+scratch/

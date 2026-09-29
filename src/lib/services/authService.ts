@@ -4,8 +4,7 @@ import { UserSession, UserRole } from '../../hooks/useAuthStore';
 const MOCK_PROFILES: UserSession[] = [
   { id: "1", name: "Ángel Eduardo", role: "admin", title: "CEO / Dueño", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
   { id: "2", name: "Laura", role: "admin", title: "Vice Directora", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
-  { id: "3", name: "José Luis", role: "contable", title: "Contador / Marketing", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
-  { id: "4", name: "Samuel", role: "proyectista", title: "Proyectista Técnico", avatar: "", phone: "+5355144097", clientsCount: 15, reviewsCount: 10 },
+  { id: "3", name: "José Luis", role: "admin", title: "Administrador Ejecutivo", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
   { id: "5", name: "Yasiel", role: "tecnico", title: "Director Técnico", avatar: "", phone: "+5355144097", clientsCount: 30, reviewsCount: 25 },
   { id: "6", name: "Niurki", role: "comercial", title: "Asesora Comercial", avatar: "", phone: "+5355144097", clientsCount: 15, reviewsCount: 45 },
   { id: "7", name: "Diana Rosa", role: "comercial", title: "Asesora Comercial", avatar: "", phone: "+5355144097", clientsCount: 12, reviewsCount: 38 },
@@ -58,10 +57,16 @@ export const authService = {
    */
   async getProfiles(): Promise<UserSession[]> {
     try {
-      const { data, error } = await supabase
+      const queryPromise = supabase
         .from('perfiles')
         .select('*')
         .eq('activo', true);
+
+      const timeoutPromise = new Promise<{ data: any; error: any }>((_, reject) =>
+        setTimeout(() => reject(new Error('Supabase request timeout')), 1800)
+      );
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) {
         console.warn('Error obteniendo perfiles de Supabase, usando mocks:', error);
@@ -73,7 +78,7 @@ export const authService = {
         return MOCK_PROFILES;
       }
 
-      return data.map((row) => ({
+      return data.map((row: any) => ({
         id: row.id,
         name: row.nombre,
         role: (row.rol as UserRole) || 'comercial',

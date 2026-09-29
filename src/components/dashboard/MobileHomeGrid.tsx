@@ -10,7 +10,7 @@ import {
   UserPlus, Wrench, Flame, BarChart3,
   Package, Calendar, Sliders, CheckCircle2,
   ClipboardList, LayoutGrid, Calculator, FileText, Truck, ClipboardCheck,
-  Search, ShieldAlert, LogOut, Edit3, DollarSign, MessageSquare, ExternalLink, HelpCircle, X, Globe, Box
+  Search, ShieldAlert, LogOut, Edit3, DollarSign, MessageSquare, ExternalLink, HelpCircle, X, Globe, Box, Layers
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -36,6 +36,7 @@ const TILES_BY_ROLE: Record<string, { id: string; view: AdminView; label: string
     { id: 'quejas',        view: 'quejas',         label: 'Quejas',        icon: Flame },
     { id: 'estadisticas',  view: 'finanzas',       label: 'Finanzas / Pagos', icon: BarChart3 },
     { id: 'inventario',    view: 'almacen',        label: 'Inventario',    icon: Package },
+    { id: 'kits',          view: 'kits',           label: 'Kits Solares',  icon: Layers },
     { id: 'calendario',    view: 'calendario',     label: 'Calendario',    icon: Calendar },
     { id: 'ajustes',       view: 'ajustes',        label: 'Ajustes',       icon: Sliders },
     { id: 'validacion',    view: 'validacion',     label: 'Validación',    icon: CheckCircle2 },

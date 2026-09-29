@@ -2,6 +2,7 @@ import { Switch, Route } from "wouter";
 import DashboardWelcome from "./DashboardWelcome";
 import DashboardLogin from "./DashboardLogin";
 import DashboardPanel from "./DashboardPanel";
+import KitsAdminPage from "./kits/KitsAdminPage";
 import ProtectedRoute from "../auth/ProtectedRoute";
 
 export default function DashboardMain() {
@@ -14,6 +15,11 @@ export default function DashboardMain() {
         </ProtectedRoute>
       </Route>
       <Route path="/admin/login" component={DashboardLogin} />
+      <Route path="/admin/kits">
+        <ProtectedRoute allowedRoles={['admin', 'ceo', 'proyectista', 'comercial', 'designado', 'almacenero']}>
+          <KitsAdminPage />
+        </ProtectedRoute>
+      </Route>
       <Route path="/admin/panel">
         <ProtectedRoute>
           <DashboardPanel />

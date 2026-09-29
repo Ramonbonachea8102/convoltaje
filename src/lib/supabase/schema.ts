@@ -113,6 +113,24 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['ot_activity_log']['Row'], 'id' | 'created_at'>
         Update: Partial<Database['public']['Tables']['ot_activity_log']['Insert']>
+      },
+
+      // KITS SOLARES DINÁMICOS
+      kits: {
+        Row: {
+          id: string
+          name: string
+          category: string | null
+          image_url: string | null
+          components: Json // array de componentes o jsonb
+          price: number
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['kits']['Row'], 'id' | 'created_at'> & {
+          id?: string
+          created_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['kits']['Insert']>
       }
     }
   }

@@ -20,6 +20,7 @@ import UtilesHub from "./UtilesHub";
 import EntregasView from "./EntregasView";
 import PedidosPendientes from "./inventory/PedidosPendientes";
 import LevantamientoForm from "./tech/LevantamientoForm";
+import { KitsManagement } from "./kits/KitsManagement";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { canAccessView } from "@/hooks/useRoleAccess";
 import { AdminView } from "./Sidebar";
@@ -122,6 +123,8 @@ export default function DashboardPanel() {
         return <PedidosPendientes onSelectView={setCurrentView} />;
       case 'levantamiento':
         return <LevantamientoForm />;
+      case 'kits' as AdminView:
+        return <KitsManagement />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-full text-white/50 py-12">
@@ -167,6 +170,7 @@ export default function DashboardPanel() {
            currentView === 'ajustes' ? 'Configuración' :
             currentView === 'utiles' ? 'Útiles y Herramientas' :
             currentView === 'entregas' ? 'Rutas y Entregas' :
+            currentView === 'kits' ? 'Kits Solares' :
             currentView === 'pedidos' ? 'Pedidos Pendientes' : currentView}
         </h3>
 
@@ -179,7 +183,9 @@ export default function DashboardPanel() {
       </div>
 
       {/* Contenido Dinámico de la vista (Grid o Módulo activo) */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 max-w-lg mx-auto w-full flex flex-col">
+      <div className={`flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 mx-auto w-full flex flex-col ${
+        currentView === 'inicio' ? 'max-w-lg' : 'max-w-6xl'
+      }`}>
         {renderContent()}
       </div>
 

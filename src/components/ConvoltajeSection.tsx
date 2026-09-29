@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { CONVOLTAJE_PRODUCTS, WHATSAPP_NUMBERS, Product } from "@/lib/products";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { Calculator, Download, X, Search, Store, Percent, Wrench, CheckCircle, Calendar as CalendarIcon, Eye, ArrowUpDown } from "lucide-react";
+import { Calculator, Download, X, Search, Store, Percent, Wrench, CheckCircle, Calendar as CalendarIcon, Eye, ArrowUpDown, Layers } from "lucide-react";
 import { generateKitComparisonPDF } from "@/lib/pdf-comparison-generator";
+import { useKitsStore, SolarKit } from "@/hooks/useKitsStore";
+import { PublicKitCard } from "@/components/PublicKitCard";
+import { KitWorkOrderModal } from "@/components/KitWorkOrderModal";
 import { toast } from "sonner";
 
 interface ConvoltajeSectionProps {
@@ -17,11 +20,20 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>([]);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
+  // Dynamic Kits Store
+  const { kits, fetchKits, isLoading: isLoadingKits } = useKitsStore();
+  const [selectedKitForOrder, setSelectedKitForOrder] = useState<SolarKit | null>(null);
+  const [selectedKitCategory, setSelectedKitCategory] = useState<string>('all');
+
   // Estados del Mockup 2 (Tienda Mercado Cubano)
-  const [activeTab, setActiveTab] = useState<'tienda' | 'ofertas' | 'servicios' | 'resenas' | 'instalar'>('tienda');
+  const [activeTab, setActiveTab] = useState<'kits' | 'tienda' | 'ofertas' | 'servicios' | 'resenas' | 'instalar'>('kits');
   const [sortOption, setSortOption] = useState<'mas_visitados' | 'precio_menor' | 'precio_mayor'>('mas_visitados');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    fetchKits();
+  }, [fetchKits]);
 
   useEffect(() => {
     if (onRef) {
@@ -73,6 +85,22 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
       setIsGeneratingPdf(false);
     }
   };
+
+  // Filtrado y Ordenación de Kits Dinámicos (Supabase)
+  const filteredKits = kits.filter((k) => {
+    const matchesCategory =
+      selectedKitCategory === 'all' || k.category.toLowerCase() === selectedKitCategory.toLowerCase();
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return matchesCategory;
+    const matchesName = k.name.toLowerCase().includes(query);
+    const matchesDesc = k.description?.toLowerCase().includes(query);
+    const matchesComp = k.componentsSummary?.some((c) => c.toLowerCase().includes(query));
+    return matchesCategory && (matchesName || matchesDesc || matchesComp);
+  }).sort((a, b) => {
+    if (sortOption === 'precio_menor') return a.totalPrice - b.totalPrice;
+    if (sortOption === 'precio_mayor') return b.totalPrice - a.totalPrice;
+    return 0;
+  });
 
   // Filtrado y Ordenación de Productos
   const filteredProducts = CONVOLTAJE_PRODUCTS.filter((p) => {
@@ -127,8 +155,19 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
           </div>
         </div>
 
-        {/* ── 2. Navbar de Píldoras (Mockup 2) ─────────────────────────────────── */}
+        {/* ── 2. Navbar de Píldoras (Mockup 2 + Kits Dinámicos) ─────────────────────────────────── */}
         <div className="bg-slate-950 p-2 rounded-2xl border border-slate-800 mb-6 shadow-lg flex items-center justify-between overflow-x-auto gap-2 scrollbar-none">
+          <button
+            onClick={() => setActiveTab('kits')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
+              activeTab === 'kits'
+                ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/30 font-black'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Layers size={16} /> Kits Solares ({kits.length})
+          </button>
+
           <button
             onClick={() => setActiveTab('tienda')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
@@ -137,7 +176,7 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
                 : 'text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
-            <Store size={16} /> Tienda
+            <Store size={16} /> Todos los Equipos
           </button>
 
           <button
@@ -187,7 +226,7 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300 w-full md:w-auto">
             <div className="flex items-center gap-1.5 font-bold text-orange-400">
               <Eye size={14} />
-              <span>Mostrando artículos por orden de más visitados</span>
+              <span>{activeTab === 'kits' ? 'Kits solares completos disponibles' : 'Mostrando artículos por orden'}</span>
             </div>
 
             <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-slate-300">
@@ -197,11 +236,30 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
                 onChange={(e) => setSortOption(e.target.value as any)}
                 className="bg-transparent text-xs font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="mas_visitados" className="bg-slate-900 text-white">Más visitados</option>
+                <option value="mas_visitados" className="bg-slate-900 text-white">Recomendados</option>
                 <option value="precio_menor" className="bg-slate-900 text-white">Precio: Menor a Mayor</option>
                 <option value="precio_mayor" className="bg-slate-900 text-white">Precio: Mayor a Menor</option>
               </select>
             </div>
+
+            {/* Selector de Categorías para Kits */}
+            {activeTab === 'kits' && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                {['all', 'Residencial', 'Comercial', 'Personalizado'].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedKitCategory(cat)}
+                    className={`px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
+                      selectedKitCategory === cat
+                        ? 'bg-cyan-400 text-slate-950 border-cyan-400'
+                        : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    {cat === 'all' ? 'Todos' : cat}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Input de Búsqueda Rápida */}
@@ -210,7 +268,7 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar producto rápidamente"
+              placeholder={activeTab === 'kits' ? "Buscar kit o componente (ej: 6kW)..." : "Buscar producto rápidamente"}
               className="w-full bg-slate-900 text-white text-xs placeholder-slate-500 pl-4 pr-10 py-2.5 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2 bg-orange-600 text-white p-1.5 rounded-lg">
@@ -219,20 +277,54 @@ export default function ConvoltajeSection({ onRef, onCalculatorClick, onViewDeta
           </div>
         </div>
 
-        {/* ── 4. Product Grid Mercado Cubano (2x4 Responsivo) ─────────────────────────────────── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              whatsappNumber={WHATSAPP_NUMBERS.convoltaje}
-              onWhatsappClick={handleWhatsappClick}
-              onViewDetails={onViewDetails}
-              isComparing={selectedCompareIds.includes(product.id)}
-              onToggleCompare={handleToggleCompare}
-            />
-          ))}
-        </div>
+        {/* ── 4. Grid de Kits Dinámicos o Productos ─────────────────────────────────── */}
+        {activeTab === 'kits' ? (
+          filteredKits.length === 0 ? (
+            <div className="text-center py-16 bg-slate-950/40 rounded-3xl border border-dashed border-slate-800 p-8 my-8">
+              <p className="text-slate-400 text-sm">No se encontraron kits solares con los filtros seleccionados.</p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedKitCategory('all');
+                }}
+                className="mt-3 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold rounded-xl"
+              >
+                Restablecer filtros
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {filteredKits.map((kit) => (
+                <PublicKitCard
+                  key={kit.id}
+                  kit={kit}
+                  onSelectKit={(k) => setSelectedKitForOrder(k)}
+                />
+              ))}
+            </div>
+          )
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                whatsappNumber={WHATSAPP_NUMBERS.convoltaje}
+                onWhatsappClick={handleWhatsappClick}
+                onViewDetails={onViewDetails}
+                isComparing={selectedCompareIds.includes(product.id)}
+                onToggleCompare={handleToggleCompare}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Modal de Generación de Orden de Trabajo y Cotización */}
+        <KitWorkOrderModal
+          kit={selectedKitForOrder}
+          isOpen={Boolean(selectedKitForOrder)}
+          onClose={() => setSelectedKitForOrder(null)}
+        />
 
         {/* ── 5. Footer con Paginación de 7 Dots (Mockup 2) ─────────────────────────────────── */}
         <div className="flex items-center justify-center gap-2.5 py-6">

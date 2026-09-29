@@ -15,10 +15,12 @@ import SplashWelcome from "./components/SplashWelcome";
 import { Toaster } from "sonner";
 import { Switch, Route } from "wouter";
 import DashboardMain from "./components/dashboard/DashboardMain";
+import { LeadRegistrationModal } from "./components/participation/LeadRegistrationModal";
 
 function App() {
   const [selectedBrand, setSelectedBrand] = useState<"none" | "convoltaje" | "tintaflash">("none");
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null);
+  const [showRaffleModal, setShowRaffleModal] = useState(false);
 
   // Sync scrolling to top when entering product detail page
   useEffect(() => {
@@ -95,7 +97,10 @@ function App() {
             />
           ) : (
             <>
-              <Header onResetBrand={() => setSelectedBrand("none")} />
+              <Header 
+                onResetBrand={() => setSelectedBrand("none")} 
+                onOpenRaffle={() => setShowRaffleModal(true)}
+              />
               <HeroSection onExploreClick={handleExploreClick} onCalculatorClick={handleCalculatorClick} />
               <ConvoltajeSection 
                 onCalculatorClick={handleCalculatorClick}
@@ -113,6 +118,11 @@ function App() {
           )}
         </Route>
       </Switch>
+      <LeadRegistrationModal 
+        isOpen={showRaffleModal}
+        onClose={() => setShowRaffleModal(false)}
+        onNavigateToCalculator={handleCalculatorClick}
+      />
       <Toaster position="top-center" />
     </div>
   );

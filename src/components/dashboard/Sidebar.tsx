@@ -1,8 +1,8 @@
-import { Calendar, LayoutDashboard, Package, PieChart, Users, Truck, ClipboardList, ClipboardCheck } from "lucide-react";
+import { Calendar, LayoutDashboard, Package, PieChart, Users, Truck, ClipboardList, ClipboardCheck, Layers } from "lucide-react";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { canAccessView } from "@/hooks/useRoleAccess";
 
-export type AdminView = 'inicio' | 'calendario' | 'pipeline' | 'almacen' | 'finanzas' | 'instalaciones' | 'quejas' | 'ajustes' | 'calculadora' | 'historial' | 'plantillas' | 'errores' | 'manuales' | 'asignaciones' | 'validacion' | 'herramientas' | 'utiles' | 'entregas' | 'pedidos' | 'levantamiento';
+export type AdminView = 'inicio' | 'calendario' | 'pipeline' | 'almacen' | 'finanzas' | 'instalaciones' | 'quejas' | 'ajustes' | 'calculadora' | 'historial' | 'plantillas' | 'errores' | 'manuales' | 'asignaciones' | 'validacion' | 'herramientas' | 'utiles' | 'entregas' | 'pedidos' | 'levantamiento' | 'kits';
 
 interface SidebarProps {
   currentView: AdminView;
@@ -20,6 +20,7 @@ export default function Sidebar({ currentView, onChangeView }: SidebarProps) {
     { id: 'pedidos', label: 'Pedidos', icon: <ClipboardList size={20} /> },
     { id: 'entregas', label: 'Entregas / Rutas', icon: <Truck size={20} /> },
     { id: 'almacen', label: 'Almacén', icon: <Package size={20} /> },
+    { id: 'kits', label: 'Kits Solares', icon: <Layers size={20} /> },
     { id: 'finanzas', label: 'Finanzas', icon: <PieChart size={20} /> },
   ];
 

@@ -56,8 +56,7 @@ export interface SettingsState {
 const defaultTeam: TeamMember[] = [
   { id: 'tm-1', name: 'Ángel Eduardo', role: 'admin',     title: 'CEO / Dueño',           commissionPct: 0,  phone: '+5355144097', isActive: true },
   { id: 'tm-2', name: 'Laura',         role: 'admin',     title: 'Vice Directora',         commissionPct: 0,  phone: '',           isActive: true },
-  { id: 'tm-3', name: 'José Luis',     role: 'contable',  title: 'Contador / Marketing',   commissionPct: 0,  phone: '',           isActive: true },
-  { id: 'tm-4', name: 'Samuel',        role: 'admin',     title: 'Administrador',          commissionPct: 0,  phone: '',           isActive: true },
+  { id: 'tm-3', name: 'José Luis',     role: 'admin',     title: 'Administrador Ejecutivo',commissionPct: 0,  phone: '+5355144097', isActive: true },
   { id: 'tm-5', name: 'Yasiel',        role: 'tecnico',   title: 'Director Técnico',       commissionPct: 3,  phone: '',           isActive: true },
   { id: 'tm-6', name: 'Daniel',        role: 'tecnico',   title: 'Técnico - Pinar del Río',commissionPct: 3,  phone: '',           isActive: true },
   { id: 'tm-7', name: 'Anabel',        role: 'comercial', title: 'Comercial - Mayabeque',  commissionPct: 5,  phone: '',           isActive: true },
