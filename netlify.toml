@@ -2,10 +2,19 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  VITE_SUPABASE_URL = "https://vteasylxooahvvqvzrjm.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "sb_publishable_euWm1v5NgcroujyDg5T7GA_WNwnIvTj"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[context.production.environment]
+  VITE_SUPABASE_URL = "https://vteasylxooahvvqvzrjm.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "sb_publishable_euWm1v5NgcroujyDg5T7GA_WNwnIvTj"
+
 
 [context."staging/convoltaje-superadmin".environment]
   VITE_SUPABASE_URL = "https://fvcjxujqeruzzxejtmcs.supabase.co"
