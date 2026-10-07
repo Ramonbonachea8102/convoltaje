@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Sparkles, Send, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
+import { Check, Sparkles, Send, ArrowRight, FileText, Download, Clock, Camera } from 'lucide-react';
 import { SolarKit } from '@/hooks/useKitsStore';
 import { WHATSAPP_NUMBERS } from '@/lib/products';
 
@@ -16,44 +16,69 @@ export const PublicKitCard: React.FC<PublicKitCardProps> = ({
 }) => {
   const handleQuickWhatsapp = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const rawNumber = WHATSAPP_NUMBERS.convoltaje.replace(/\D/g, '');
-    const message = `Hola Convoltaje, me interesa cotizar/solicitar el *${kit.name}* ($${kit.totalPrice.toLocaleString()} USD). ¿Tienen disponibilidad?`;
-    window.open(`https://wa.me/${rawNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    const cleanNumber = WHATSAPP_NUMBERS.convoltaje.replace(/\D/g, '');
+    const message = `Hola ConVoltaje 👋 Me interesa solicitar cotización del *${kit.name}* ($${kit.totalPrice.toLocaleString()} USD). ¿Tienen disponibilidad?`;
+    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
+
+  const hasOffer = Boolean(kit.originalPrice && kit.originalPrice > kit.totalPrice);
+  const discountPercent = hasOffer && kit.originalPrice
+    ? Math.round(((kit.originalPrice - kit.totalPrice) / kit.originalPrice) * 100)
+    : 0;
 
   return (
     <div className="group relative bg-slate-950 border border-slate-800 hover:border-cyan-500/50 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-full text-slate-100">
       
       {/* Top Banner: Image & Badges */}
       <div className="relative w-full h-52 bg-slate-900 overflow-hidden">
-        {/* Kit Image */}
-        <img
-          src={kit.imageUrl || '/images/logoconvoltaje.jpg'}
-          alt={kit.name}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/images/logoconvoltaje.jpg';
-          }}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {/* Kit Image or Professional Neutral Placeholder */}
+        {kit.imageUrl && !kit.hasImagePending ? (
+          <img
+            src={kit.imageUrl}
+            alt={kit.name}
+            onError={(e) => {
+              (e.target as HTMLElement).style.display = 'none';
+            }}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-6 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-2 shadow-inner">
+              <Camera size={22} className="opacity-80" />
+            </div>
+            <span className="text-xs font-bold text-slate-300">Imagen del producto pendiente</span>
+            <span className="text-[10px] text-slate-500 mt-0.5">Fotografía técnica oficial en preparación</span>
+          </div>
+        )}
 
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
-        {/* Category Badge Top Left */}
-        <div className="absolute top-3 left-3 z-10">
-          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-900/80 backdrop-blur-md border border-cyan-400/40 text-cyan-400 shadow-md">
+        {/* Badges Top Left: Category & Discount */}
+        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
+          <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-900/85 backdrop-blur-md border border-cyan-400/40 text-cyan-400 shadow-md">
             {kit.category}
           </span>
+          {hasOffer && (
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-600 text-white shadow-lg animate-pulse">
+              ¡Oferta -{discountPercent}%!
+            </span>
+          )}
         </div>
 
         {/* Direct Price Tag Bottom Right */}
-        <div className="absolute bottom-3 right-3 z-10 bg-slate-950/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-orange-500/40 shadow-xl">
-          <span className="text-[9px] uppercase font-extrabold text-slate-400 block leading-none">
-            Precio Total
-          </span>
-          <span className="text-lg md:text-xl font-black text-orange-500 leading-tight">
-            ${kit.totalPrice.toLocaleString()} <span className="text-[10px] font-bold text-slate-300">USD</span>
-          </span>
+        <div className="absolute bottom-3 right-3 z-10 bg-slate-950/95 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-orange-500/50 shadow-2xl flex flex-col items-end">
+          {hasOffer && kit.originalPrice && (
+            <span className="text-[11px] line-through text-slate-400 font-bold leading-none mb-1">
+              ${kit.originalPrice.toLocaleString()} USD
+            </span>
+          )}
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl md:text-2xl font-black text-orange-500 leading-none">
+              ${kit.totalPrice.toLocaleString()}
+            </span>
+            <span className="text-[11px] font-extrabold text-slate-300">USD</span>
+          </div>
         </div>
       </div>
 
@@ -66,7 +91,7 @@ export const PublicKitCard: React.FC<PublicKitCardProps> = ({
           </h3>
 
           {kit.description && (
-            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4 font-normal">
+            <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed mb-4 font-normal">
               {kit.description}
             </p>
           )}
@@ -79,7 +104,7 @@ export const PublicKitCard: React.FC<PublicKitCardProps> = ({
             </span>
 
             <ul className="space-y-1.5">
-              {kit.componentsSummary.map((component, idx) => (
+              {kit.componentsSummary.slice(0, 5).map((component, idx) => (
                 <li key={idx} className="text-xs text-slate-300 flex items-start gap-2">
                   <div className="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check size={10} strokeWidth={3} />
@@ -91,8 +116,41 @@ export const PublicKitCard: React.FC<PublicKitCardProps> = ({
           </div>
         </div>
 
+        {/* Ficha Técnica / PDF Actions */}
+        <div className="pt-3 pb-2 border-t border-slate-800/80">
+          {kit.pdfUrl && kit.hasTechnicalSheet !== false ? (
+            <div className="flex items-center gap-2">
+              <a
+                href={kit.pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/40 text-cyan-400 text-[11px] font-bold transition-all"
+              >
+                <FileText size={13} />
+                <span>Ver ficha técnica</span>
+              </a>
+              <a
+                href={kit.pdfUrl}
+                download
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/40 text-slate-300 hover:text-white text-[11px] font-bold transition-all"
+                title="Descargar PDF"
+              >
+                <Download size={13} />
+                <span className="hidden sm:inline">Descargar</span>
+              </a>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-semibold">
+              <Clock size={13} />
+              <span>Ficha técnica pendiente</span>
+            </div>
+          )}
+        </div>
+
         {/* Action Controls */}
-        <div className="pt-4 mt-3 border-t border-slate-800/80 flex items-center gap-2">
+        <div className="pt-2 flex items-center gap-2">
           {/* Primary Action: Solicitar Kit / Cotizar */}
           <button
             onClick={() => onSelectKit(kit)}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight, Check, Zap, MessageCircle, FileText } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Check, Zap, MessageCircle, FileText, Camera } from "lucide-react";
 import { Product } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { generateProductSheet } from "@/lib/pdf-generator";
@@ -22,7 +22,9 @@ export default function ProductDetailPage({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showFinancingModal, setShowFinancingModal] = useState(false);
   const [showSalesRepsModal, setShowSalesRepsModal] = useState(false);
-  const images = product.images && product.images.length > 0 ? product.images : [product.image];
+  const validImages = (product.images || []).filter(Boolean) as string[];
+  const images = validImages.length > 0 ? validImages : (product.image ? [product.image] : []);
+  const hasImages = images.length > 0;
   const hasMultipleImages = images.length > 1;
 
   const nextImage = () => {
@@ -66,12 +68,24 @@ export default function ProductDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Carousel */}
           <div className="flex flex-col gap-4">
-            <div className="relative w-full h-[280px] lg:h-[500px] bg-white rounded-2xl overflow-hidden border border-border flex items-center justify-center">
-              <img
-                src={images[currentImageIndex]}
-                alt={`${product.name} - Imagen ${currentImageIndex + 1}`}
-                className="w-full h-full object-contain p-4"
-              />
+            <div className="relative w-full h-[280px] lg:h-[500px] bg-slate-900 rounded-2xl overflow-hidden border border-border flex items-center justify-center">
+              {hasImages && images[currentImageIndex] ? (
+                <img
+                  src={images[currentImageIndex]}
+                  alt={`${product.name} - Imagen ${currentImageIndex + 1}`}
+                  className="w-full h-full object-contain p-4"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center p-8">
+                  <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-3 shadow-inner">
+                    <Camera size={32} className="opacity-80" />
+                  </div>
+                  <h4 className="text-base font-bold text-white mb-1">Imagen del producto pendiente</h4>
+                  <p className="text-xs text-slate-400 max-w-xs">
+                    Estamos preparando el material fotográfico y de catálogo oficial para este sistema.
+                  </p>
+                </div>
+              )}
               
               {hasMultipleImages && (
                 <>
@@ -184,15 +198,31 @@ export default function ProductDetailPage({
                   Solicitar por WhatsApp
                 </Button>
                 
-                <Button
-                  variant="outline"
-                  onClick={handleDownloadSheet}
-                  disabled={isGeneratingPdf}
-                  className="w-full text-foreground border-border hover:bg-muted font-accent text-sm py-4"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {isGeneratingPdf ? "Generando..." : "📄 Descargar ficha técnica"}
-                </Button>
+                {product.pdfUrl && product.hasTechnicalSheet !== false ? (
+                  <div className="flex gap-2 w-full">
+                    <a
+                      href={product.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center py-3 px-4 rounded-xl bg-muted/60 hover:bg-muted text-foreground border border-border text-sm font-semibold transition-colors"
+                    >
+                      <FileText className="w-4 h-4 mr-2 text-primary" />
+                      Ver ficha técnica
+                    </a>
+                    <a
+                      href={product.pdfUrl}
+                      download
+                      className="flex-1 inline-flex items-center justify-center py-3 px-4 rounded-xl bg-muted/60 hover:bg-muted text-foreground border border-border text-sm font-semibold transition-colors"
+                    >
+                      📄 Descargar PDF
+                    </a>
+                  </div>
+                ) : (
+                  <div className="w-full text-center py-3 px-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-semibold flex items-center justify-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    <span>Ficha técnica pendiente</span>
+                  </div>
+                )}
 
                 <Button
                   variant="outline"

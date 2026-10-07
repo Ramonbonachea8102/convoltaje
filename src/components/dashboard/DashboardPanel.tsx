@@ -21,6 +21,8 @@ import EntregasView from "./EntregasView";
 import PedidosPendientes from "./inventory/PedidosPendientes";
 import LevantamientoForm from "./tech/LevantamientoForm";
 import { KitsManagement } from "./kits/KitsManagement";
+import { OffersManagement } from "./offers/OffersManagement";
+import { ServicesManagement } from "./services/ServicesManagement";
 import { useAuthStore } from "@/hooks/useAuthStore";
 import { canAccessView } from "@/hooks/useRoleAccess";
 import { AdminView } from "./Sidebar";
@@ -125,6 +127,10 @@ export default function DashboardPanel() {
         return <LevantamientoForm />;
       case 'kits' as AdminView:
         return <KitsManagement />;
+      case 'ofertas' as AdminView:
+        return <OffersManagement />;
+      case 'servicios' as AdminView:
+        return <ServicesManagement />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-full text-white/50 py-12">

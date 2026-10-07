@@ -1,19 +1,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '@/lib/supabase';
+import { CONVOLTAJE_PRODUCTS } from '@/lib/products';
 
-export type KitCategory = 'Residencial' | 'Comercial' | 'Personalizado' | 'Industrial' | 'Portátil';
+export type KitCategory = 'Residencial' | 'Comercial' | 'Personalizado' | 'PowerStations' | 'Industrial' | 'Portátil';
 
 export interface SolarKit {
   id: string;
   name: string;
   category: KitCategory;
-  imageUrl: string;
+  imageUrl?: string | null;
+  hasImagePending?: boolean;
   componentsSummary: string[];
-  totalPrice: number;
+  totalPrice: number; // Precio de oferta / precio principal
+  originalPrice?: number;
   description?: string;
   createdAt: string;
   updatedAt: string;
+  pdfUrl?: string | null;
+  hasTechnicalSheet?: boolean;
 }
 
 interface KitsState {
@@ -22,81 +27,27 @@ interface KitsState {
   error: string | null;
   fetchKits: () => Promise<void>;
   addKit: (kit: Omit<SolarKit, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateKit: (id: string, updates: Partial<Omit<SolarKit, 'id' | 'createdAt'>>) => Promise<void>;
+  updateKit: (id: string, updates: Partial<SolarKit>) => Promise<void>;
   deleteKit: (id: string) => Promise<void>;
   resetToDefaults: () => void;
 }
 
-export const INITIAL_SOLAR_KITS: SolarKit[] = [
-  {
-    id: 'kit-basico-1500w',
-    name: 'Sistema Básico - 1500W',
-    category: 'Residencial',
-    imageUrl: '/images/logoconvoltaje.jpg',
-    componentsSummary: [
-      'Inversor Onda Pura MUST 1.5kW',
-      '2 Paneles Solares Monocristalinos 450W',
-      '1 Batería Ciclo Profundo Gel 12V 200Ah',
-      'Estructura de montaje coplanar para techo',
-      'Kit de protecciones AC/DC + cable solar 4mm'
-    ],
-    totalPrice: 1745,
-    description: 'Kit residencial para cargas críticas (refrigerador, luces, TV y ventiladores).',
-    createdAt: '2026-01-15T10:00:00.000Z',
-    updatedAt: '2026-01-15T10:00:00.000Z'
-  },
-  {
-    id: 'kit-medio-3000w',
-    name: 'Sistema Solar Medio - 3000W',
-    category: 'Residencial',
-    imageUrl: '/images/kit-10kw-equipo.jpg',
-    componentsSummary: [
-      'Inversor Híbrido MUST 3kW 24V',
-      '4 Paneles Solares Monocristalinos 550W Tier 1',
-      '1 Batería LiFePO4 MUST 5.1kWh',
-      'Estructura de aluminio anodizado reforzada',
-      'Caja de protecciones completa + monitoreo WiFi'
-    ],
-    totalPrice: 3850,
-    description: 'Autonomía balanceada para el hogar promedio cubano con respaldo nocturno continuo.',
-    createdAt: '2026-01-20T10:00:00.000Z',
-    updatedAt: '2026-01-20T10:00:00.000Z'
-  },
-  {
-    id: 'kit-6k-plus',
-    name: 'Sistema 6K PLUS',
-    category: 'Comercial',
-    imageUrl: '/images/kit-10kw-equipo.jpg',
-    componentsSummary: [
-      'Inversor Híbrido MUST 6kW 48V split-phase',
-      '8 Paneles Solares Alta Eficiencia 550W',
-      'Batería LiFePO4 MUST 15kWh de pared',
-      'Estructura de montaje en aluminio sobre cubierta plana o teja',
-      'Interruptor de transferencia automática (ATS) + protecciones'
-    ],
-    totalPrice: 6950,
-    description: 'Capacidad para alimentar aire acondicionado, bombas de agua, refrigeración comercial y hogar completo.',
-    createdAt: '2026-02-01T10:00:00.000Z',
-    updatedAt: '2026-02-01T10:00:00.000Z'
-  },
-  {
-    id: 'kit-industrial-10kw',
-    name: 'Sistema Industrial / Negocio 10kW',
-    category: 'Personalizado',
-    imageUrl: '/images/Kit-10k-imagen-2.jpg',
-    componentsSummary: [
-      'Inversor Industrial MUST 10kW',
-      '16 Paneles Solares 580W Bifaciales',
-      '2 Baterías LiFePO4 15kWh (30kWh totales en paralelo)',
-      'Estructuras de suelo con ingeniería de fijación reforzada',
-      'Gabinete de protecciones industriales y cableado cero pérdida'
-    ],
-    totalPrice: 11800,
-    description: 'Solución a medida para negocios de alto consumo, restaurantes, talleres y clínicas.',
-    createdAt: '2026-02-15T10:00:00.000Z',
-    updatedAt: '2026-02-15T10:00:00.000Z'
-  }
-];
+// Generar kits predeterminados sincronizados con la fuente única CONVOLTAJE_PRODUCTS
+export const INITIAL_SOLAR_KITS: SolarKit[] = CONVOLTAJE_PRODUCTS.map((prod) => ({
+  id: prod.id,
+  name: prod.name,
+  category: (prod.category as KitCategory) || 'Residencial',
+  imageUrl: prod.image || null,
+  hasImagePending: prod.hasImagePending,
+  componentsSummary: prod.specs && prod.specs.length > 0 ? prod.specs : [prod.description],
+  totalPrice: prod.price,
+  originalPrice: prod.originalPrice,
+  description: prod.description,
+  createdAt: '2026-09-30T10:00:00.000Z',
+  updatedAt: '2026-09-30T10:00:00.000Z',
+  pdfUrl: prod.pdfUrl,
+  hasTechnicalSheet: prod.hasTechnicalSheet,
+}));
 
 export const useKitsStore = create<KitsState>()(
   persist(
@@ -108,7 +59,6 @@ export const useKitsStore = create<KitsState>()(
       fetchKits: async () => {
         set({ isLoading: true, error: null });
         try {
-          // Race between network fetch and timeout for high-availability offline tolerance
           const queryPromise = supabase
             .from('kits')
             .select('*')
@@ -146,15 +96,17 @@ export const useKitsStore = create<KitsState>()(
                 imageUrl: item.image_url || '/images/logoconvoltaje.jpg',
                 componentsSummary: components.length > 0 ? components : ['Componentes estándar de sistema'],
                 totalPrice: Number(item.price) || 0,
+                originalPrice: item.original_price ? Number(item.original_price) : undefined,
                 description: item.description || '',
                 createdAt: item.created_at || new Date().toISOString(),
                 updatedAt: item.created_at || new Date().toISOString(),
+                pdfUrl: item.pdf_url || null,
+                hasTechnicalSheet: item.has_technical_sheet ?? Boolean(item.pdf_url),
               };
             });
 
             set({ kits: mappedKits, isLoading: false, error: null });
           } else {
-            // If Supabase returned empty table, preserve local kits
             set({ isLoading: false });
           }
         } catch (err: any) {
@@ -164,7 +116,7 @@ export const useKitsStore = create<KitsState>()(
       },
 
       addKit: async (kitData) => {
-        const tempId = `kit-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        const tempId = 'kit-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
         const newKit: SolarKit = {
           ...kitData,
           id: tempId,
@@ -172,10 +124,8 @@ export const useKitsStore = create<KitsState>()(
           updatedAt: new Date().toISOString(),
         };
 
-        // 1. Optimistic local update
         set((state) => ({ kits: [newKit, ...state.kits] }));
 
-        // 2. Sync to Supabase in background
         try {
           const { data, error } = await supabase
             .from('kits')
@@ -190,7 +140,6 @@ export const useKitsStore = create<KitsState>()(
             .single();
 
           if (!error && data?.id) {
-            // Replace temporary local ID with server UUID
             set((state) => ({
               kits: state.kits.map((k) => (k.id === tempId ? { ...k, id: data.id } : k)),
             }));
@@ -201,7 +150,6 @@ export const useKitsStore = create<KitsState>()(
       },
 
       updateKit: async (id, updates) => {
-        // 1. Optimistic local update
         set((state) => ({
           kits: state.kits.map((kit) =>
             kit.id === id
@@ -214,7 +162,6 @@ export const useKitsStore = create<KitsState>()(
           ),
         }));
 
-        // 2. Sync to Supabase in background
         try {
           const dbUpdates: Record<string, any> = {};
           if (updates.name !== undefined) dbUpdates.name = updates.name;
@@ -230,12 +177,10 @@ export const useKitsStore = create<KitsState>()(
       },
 
       deleteKit: async (id) => {
-        // 1. Optimistic local delete
         set((state) => ({
           kits: state.kits.filter((kit) => kit.id !== id),
         }));
 
-        // 2. Sync to Supabase
         try {
           await supabase.from('kits').delete().eq('id', id);
         } catch (err) {
@@ -249,7 +194,7 @@ export const useKitsStore = create<KitsState>()(
         }),
     }),
     {
-      name: 'convoltaje-solar-kits-v1',
+      name: 'convoltaje-solar-kits-v3', // v3 para invalidar y cargar flyers limpios y placeholders neutros
       partialize: (state) => ({ kits: state.kits }),
     }
   )

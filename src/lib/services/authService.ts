@@ -1,15 +1,16 @@
 import { supabase } from '../supabase';
 import { UserSession, UserRole } from '../../hooks/useAuthStore';
+import { OFFICIAL_WHATSAPP_NUMBER } from '../products';
 
 const MOCK_PROFILES: UserSession[] = [
-  { id: "1", name: "Ángel Eduardo", role: "admin", title: "CEO / Dueño", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
-  { id: "2", name: "Laura", role: "admin", title: "Vice Directora", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
-  { id: "3", name: "José Luis", role: "admin", title: "Administrador Ejecutivo", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
-  { id: "5", name: "Yasiel", role: "tecnico", title: "Director Técnico", avatar: "", phone: "+5355144097", clientsCount: 30, reviewsCount: 25 },
-  { id: "6", name: "Niurki", role: "comercial", title: "Asesora Comercial", avatar: "", phone: "+5355144097", clientsCount: 15, reviewsCount: 45 },
-  { id: "7", name: "Diana Rosa", role: "comercial", title: "Asesora Comercial", avatar: "", phone: "+5355144097", clientsCount: 12, reviewsCount: 38 },
-  { id: "8", name: "Almacenero", role: "almacenero", title: "Gestión de Almacén", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 },
-  { id: "9", name: "Transportista", role: "transportista", title: "Transporte y Logística", avatar: "", phone: "+5355144097", clientsCount: 0, reviewsCount: 0 }
+  { id: "1", name: "Ángel Eduardo", role: "admin", title: "CEO / Dueño", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 0, reviewsCount: 0 },
+  { id: "2", name: "Laura", role: "admin", title: "Vice Directora", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 0, reviewsCount: 0 },
+  { id: "3", name: "José Luis", role: "admin", title: "Administrador Ejecutivo", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 0, reviewsCount: 0 },
+  { id: "5", name: "Yasiel", role: "tecnico", title: "Director Técnico", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 30, reviewsCount: 25 },
+  { id: "6", name: "Niurki", role: "comercial", title: "Asesora Comercial", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 15, reviewsCount: 45 },
+  { id: "7", name: "Diana Rosa", role: "comercial", title: "Asesora Comercial", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 12, reviewsCount: 38 },
+  { id: "8", name: "Almacenero", role: "almacenero", title: "Gestión de Almacén", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 0, reviewsCount: 0 },
+  { id: "9", name: "Transportista", role: "transportista", title: "Transporte y Logística", avatar: "", phone: OFFICIAL_WHATSAPP_NUMBER, clientsCount: 0, reviewsCount: 0 }
 ];
 
 export const authService = {

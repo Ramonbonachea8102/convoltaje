@@ -15,7 +15,7 @@ React + Vite + TypeScript + Tailwind + shadcn/ui + wouter
 
 ## Reglas del Proyecto
 1. El catálogo de productos vive en `src/lib/products.ts` — la fuente de verdad para precios y productos es [elyerromenu.com](https://elyerromenu.com/b/convoltaje).
-2. El número de WhatsApp oficial debe ser consistente en todo el código (+5355144097).
+2. El número de WhatsApp oficial debe ser consistente en todo el código (+53 53097058 / +5353097058).
 3. La generación de PDF de prefacturas debe usar contenido real, nunca usar `alert()`.
 4. Tintaflash está fuera de scope por ahora — no tocar `TintaflashSection.tsx` ni archivos relacionados sin instrucción explícita.
 5. Cualquier cambio de UI debe respetar el sistema de diseño: 

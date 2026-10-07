@@ -6,7 +6,7 @@ import { useRefundsStore } from '@/hooks/useRefundsStore';
 import { useAuthStore } from '@/hooks/useAuthStore';
 import { useSettingsStore, formatEmployeeName } from '@/hooks/useSettingsStore';
 import { generateOfferPdf } from '@/lib/pdf-offer-generator';
-import { CONVOLTAJE_PRODUCTS as products, type Product } from '@/lib/products';
+import { CONVOLTAJE_PRODUCTS as products, type Product, OFFICIAL_WHATSAPP_NUMBER } from '@/lib/products';
 import { makeService } from '@/lib/services/makeService';
 import PaymentEntryModal from './PaymentEntryModal';
 
@@ -654,7 +654,7 @@ export default function OperationsPipeline() {
                       selectedDeal.stage === 'Terminado' || selectedDeal.stage === 'Facturado',
                       selectedDeal.value,
                       chosenAgent,
-                      currentUser?.phone || '+5355144097',
+                      currentUser?.phone || OFFICIAL_WHATSAPP_NUMBER,
                     );
                     toast.success("Documento generado correctamente");
                   } catch (error) {

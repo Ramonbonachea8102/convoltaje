@@ -3,7 +3,7 @@ import { Check, X, Info, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ECOPOWER_KITS } from "@/lib/calculator";
-import { WHATSAPP_NUMBERS } from "@/lib/products";
+import { WHATSAPP_NUMBERS, OFFICIAL_WHATSAPP_CLEAN } from "@/lib/products";
 import { getKitWhatsAppLink } from "@/lib/whatsapp-messages";
 import { toast } from "sonner";
 
@@ -428,7 +428,7 @@ export default function KitComparisonTable({
               const message =
                 "Hola, necesito ayuda para elegir el kit solar adecuado.";
               const encodedMessage = encodeURIComponent(message);
-              const whatsappUrl = `https://wa.me/5355144097?text=${encodedMessage}`;
+              const whatsappUrl = `https://wa.me/${OFFICIAL_WHATSAPP_CLEAN}?text=${encodedMessage}`;
               window.open(whatsappUrl, "_blank");
             }}
             className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-accent px-8 py-3"

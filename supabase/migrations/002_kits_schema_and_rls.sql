@@ -52,12 +52,12 @@ ON public.kits
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  public.get_user_role() IN ('admin', 'ceo')
-  OR (auth.jwt() ->> 'role' = 'service_role')
+  (auth.jwt() ->> 'role' = 'service_role')
   OR EXISTS (
     SELECT 1 FROM public.perfiles
-    WHERE perfiles.id = auth.uid()
-      AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+    WHERE public.perfiles.id = (SELECT auth.uid())
+      AND public.perfiles.activo = true
+      AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
   )
 );
 
@@ -67,21 +67,21 @@ ON public.kits
 FOR UPDATE
 TO authenticated
 USING (
-  public.get_user_role() IN ('admin', 'ceo')
-  OR (auth.jwt() ->> 'role' = 'service_role')
+  (auth.jwt() ->> 'role' = 'service_role')
   OR EXISTS (
     SELECT 1 FROM public.perfiles
-    WHERE perfiles.id = auth.uid()
-      AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+    WHERE public.perfiles.id = (SELECT auth.uid())
+      AND public.perfiles.activo = true
+      AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
   )
 )
 WITH CHECK (
-  public.get_user_role() IN ('admin', 'ceo')
-  OR (auth.jwt() ->> 'role' = 'service_role')
+  (auth.jwt() ->> 'role' = 'service_role')
   OR EXISTS (
     SELECT 1 FROM public.perfiles
-    WHERE perfiles.id = auth.uid()
-      AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+    WHERE public.perfiles.id = (SELECT auth.uid())
+      AND public.perfiles.activo = true
+      AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
   )
 );
 
@@ -91,12 +91,12 @@ ON public.kits
 FOR DELETE
 TO authenticated
 USING (
-  public.get_user_role() IN ('admin', 'ceo')
-  OR (auth.jwt() ->> 'role' = 'service_role')
+  (auth.jwt() ->> 'role' = 'service_role')
   OR EXISTS (
     SELECT 1 FROM public.perfiles
-    WHERE perfiles.id = auth.uid()
-      AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+    WHERE public.perfiles.id = (SELECT auth.uid())
+      AND public.perfiles.activo = true
+      AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
   )
 );
 
@@ -134,12 +134,12 @@ TO authenticated
 WITH CHECK (
   bucket_id = 'kit-images'
   AND (
-    public.get_user_role() IN ('admin', 'ceo')
-    OR (auth.jwt() ->> 'role' = 'service_role')
+    (auth.jwt() ->> 'role' = 'service_role')
     OR EXISTS (
       SELECT 1 FROM public.perfiles
-      WHERE perfiles.id = auth.uid()
-        AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+      WHERE public.perfiles.id = (SELECT auth.uid())
+        AND public.perfiles.activo = true
+        AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
     )
   )
 );
@@ -151,12 +151,12 @@ TO authenticated
 USING (
   bucket_id = 'kit-images'
   AND (
-    public.get_user_role() IN ('admin', 'ceo')
-    OR (auth.jwt() ->> 'role' = 'service_role')
+    (auth.jwt() ->> 'role' = 'service_role')
     OR EXISTS (
       SELECT 1 FROM public.perfiles
-      WHERE perfiles.id = auth.uid()
-        AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+      WHERE public.perfiles.id = (SELECT auth.uid())
+        AND public.perfiles.activo = true
+        AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
     )
   )
 );
@@ -168,12 +168,12 @@ TO authenticated
 USING (
   bucket_id = 'kit-images'
   AND (
-    public.get_user_role() IN ('admin', 'ceo')
-    OR (auth.jwt() ->> 'role' = 'service_role')
+    (auth.jwt() ->> 'role' = 'service_role')
     OR EXISTS (
       SELECT 1 FROM public.perfiles
-      WHERE perfiles.id = auth.uid()
-        AND (perfiles.rol_id IN ('admin', 'ceo') OR perfiles.rol IN ('admin', 'ceo', 'director_marketing'))
+      WHERE public.perfiles.id = (SELECT auth.uid())
+        AND public.perfiles.activo = true
+        AND public.perfiles.rol IN ('admin', 'ceo', 'director_marketing')
     )
   )
 );

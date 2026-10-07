@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, CheckCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { WHATSAPP_NUMBERS, CONVOLTAJE_PRODUCTS, type Product } from "@/lib/products";
+import { WHATSAPP_NUMBERS, OFFICIAL_WHATSAPP_NUMBER, OFFICIAL_WHATSAPP_CLEAN, CONVOLTAJE_PRODUCTS, type Product } from "@/lib/products";
 import { EcoPowerKit } from "@/lib/calculator";
 import { generateOfferPdf } from "@/lib/pdf-offer-generator";
 import { useCrmStore } from "@/hooks/useCrmStore";
@@ -101,11 +101,13 @@ export default function LeadCaptureModal({
         name: kit.name,
         description: kit.description,
         price: kit.price,
-        category: 'Sistemas Solares',
+        category: 'Residencial',
         slug: 'kit-custom',
         image: '/images/solucionapagon.jpg',
         images: ['/images/solucionapagon.jpg'],
-        specs: kit.features
+        specs: kit.features,
+        hasTechnicalSheet: false,
+        pdfUrl: null
       };
 
       // 4. Generar PDF unificado institucional
@@ -121,7 +123,7 @@ export default function LeadCaptureModal({
         false,
         kit.price,
         chosenAgent,
-        '+5355144097'
+        OFFICIAL_WHATSAPP_NUMBER
       );
 
       // 5. Mostrar confirmación
@@ -190,7 +192,7 @@ export default function LeadCaptureModal({
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="5355144097"
+                  placeholder={OFFICIAL_WHATSAPP_CLEAN}
                   className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                 />
               </div>

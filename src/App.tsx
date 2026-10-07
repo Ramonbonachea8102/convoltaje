@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Header from "./components/Header";
-import HeroSection from "./components/HeroSection";
 import ConvoltajeSection from "./components/ConvoltajeSection";
 import FAQSection from "./components/FAQSection";
 import Footer from "./components/Footer";
@@ -9,16 +8,15 @@ import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import SolarCalculator from "./components/calculator/SolarCalculator";
 import { ReviewSection } from "./components/ReviewSection";
 import ProductDetailPage from "./components/ProductDetailPage";
-import { CONVOLTAJE_PRODUCTS, TINTAFLASH_PRODUCTS, WHATSAPP_NUMBERS } from "./lib/products";
+import { CONVOLTAJE_PRODUCTS, WHATSAPP_NUMBERS } from "./lib/products";
 
-import SplashWelcome from "./components/SplashWelcome";
 import { Toaster } from "sonner";
 import { Switch, Route } from "wouter";
 import DashboardMain from "./components/dashboard/DashboardMain";
 import { LeadRegistrationModal } from "./components/participation/LeadRegistrationModal";
 
 function App() {
-  const [selectedBrand, setSelectedBrand] = useState<"none" | "convoltaje" | "tintaflash">("none");
+  // Entrada directa a Convoltaje: eliminado el splash que forzaba elegir entre Convoltaje y Tinta Flash
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null);
   const [showRaffleModal, setShowRaffleModal] = useState(false);
 
@@ -29,12 +27,7 @@ function App() {
     }
   }, [selectedProductSlug]);
 
-  const handleExploreClick = () => {
-    const catalogSection = document.getElementById("catalogo");
-    if (catalogSection) {
-      catalogSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+
 
   const handleCalculatorClick = () => {
     const calculatorSection = document.getElementById("calculadora");
@@ -44,38 +37,27 @@ function App() {
   };
 
   const handleWhatsappClick = (product: any) => {
-    const message = `Hola, me interesa el producto: *${product.name}* - $${product.price} USD. ¿Puedes darme más información?`;
+    const message = `Hola ConVoltaje 👋 Me interesa el producto: *${product.name}* - $${product.price} USD. ¿Puedes darme más información técnica y disponibilidad?`;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBERS.convoltaje.replace(/\D/g, "")}?text=${encodedMessage}`;
+    const cleanPhone = WHATSAPP_NUMBERS.convoltaje.replace(/\D/g, "");
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank");
   };
 
-  const allProducts = [...CONVOLTAJE_PRODUCTS, ...TINTAFLASH_PRODUCTS];
-  const selectedProduct = selectedProductSlug ? allProducts.find(p => p.slug === selectedProductSlug) : null;
+  const selectedProduct = selectedProductSlug ? CONVOLTAJE_PRODUCTS.find(p => p.slug === selectedProductSlug) : null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
+    <div className="min-h-screen bg-slate-950 text-white relative font-sans">
       <Switch>
-        {/* Rutas del Dashboard / Admin */}
+        {/* Rutas privadas del Dashboard / CRM */}
         <Route path="/admin" component={DashboardMain} />
         <Route path="/admin/:rest*" component={DashboardMain} />
-        
-        {/* Ruta principal de la Landing Page */}
+        <Route path="/dashboard" component={DashboardMain} />
+        <Route path="/dashboard/:rest*" component={DashboardMain} />
+
+        {/* Experiencia pública directa de ConVoltaje */}
         <Route>
-          {selectedBrand === "none" ? (
-            <SplashWelcome onSelectBrand={setSelectedBrand} />
-          ) : selectedBrand === "tintaflash" ? (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4">
-              <h1 className="text-4xl font-display font-bold text-primary mb-4">Tinta Flash</h1>
-              <p className="text-lg text-muted-foreground mb-8 text-center max-w-md">Próximamente: Todos nuestros servicios de personalización e impresión.</p>
-              <button 
-                onClick={() => setSelectedBrand("none")}
-                className="text-primary hover:underline"
-              >
-                Volver al inicio
-              </button>
-            </div>
-          ) : selectedProduct ? (
+          {selectedProduct ? (
             <ProductDetailPage 
               product={selectedProduct} 
               onClose={() => {
@@ -98,15 +80,13 @@ function App() {
           ) : (
             <>
               <Header 
-                onResetBrand={() => setSelectedBrand("none")} 
                 onOpenRaffle={() => setShowRaffleModal(true)}
               />
-              <HeroSection onExploreClick={handleExploreClick} onCalculatorClick={handleCalculatorClick} />
               <ConvoltajeSection 
                 onCalculatorClick={handleCalculatorClick}
                 onViewDetails={(product) => setSelectedProductSlug(product.slug)}
               />
-              <div id="calculadora" className="container mx-auto px-4 py-16 scroll-mt-20">
+              <div id="calculadora" className="scroll-mt-20">
                 <SolarCalculator />
               </div>
               <ReviewSection />
@@ -118,6 +98,7 @@ function App() {
           )}
         </Route>
       </Switch>
+
       <LeadRegistrationModal 
         isOpen={showRaffleModal}
         onClose={() => setShowRaffleModal(false)}

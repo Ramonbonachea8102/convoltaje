@@ -58,8 +58,11 @@
   --chart-4: #193182;
   --chart-5: #00D9FF;
   --radius: 0.75rem;
-  --background: #F8F9FA;
-  --foreground: #1A1F2E;
+  --convoltaje-hero-bg: #020617;
+  --convoltaje-card-bg: #0f172a;
+  --convoltaje-border: #1e293b;
+  --background: #020617;
+  --foreground: #F8F9FA;
   --card: #FFFFFF;
   --card-foreground: #1A1F2E;
   --popover: #FFFFFF;

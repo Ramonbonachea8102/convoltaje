@@ -98,17 +98,17 @@ export default function SolarCalculator() {
   const recommendedKit = findBestKit(dailyConsumption);
 
   return (
-    <section className="py-16 lg:py-24 bg-gradient-to-b from-background to-muted/30">
-      <div className="container mx-auto px-4">
+    <section className="py-16 lg:py-24 bg-slate-950 text-white border-t border-slate-800 font-sans">
+      <div className="container mx-auto px-4 max-w-5xl">
         {/* Section Header */}
         <div className="mb-12 text-center">
           <div className="inline-block mb-4">
-            <Zap className="w-12 h-12 text-secondary mx-auto" />
+            <Zap className="w-12 h-12 text-cyan-400 mx-auto" />
           </div>
-          <h2 className="font-display text-4xl lg:text-5xl text-primary mb-4">
+          <h2 className="font-display text-3xl md:text-5xl font-black text-orange-500 mb-3 tracking-tight">
             Calculadora Solar Inteligente
           </h2>
-          <p className="text-lg text-foreground max-w-2xl mx-auto">
+          <p className="text-slate-300 text-base md:text-lg max-w-2xl mx-auto font-medium">
             Descubre el sistema solar perfecto para tus necesidades energéticas.
             Calcula tu consumo en 4 pasos sencillos.
           </p>
@@ -120,14 +120,14 @@ export default function SolarCalculator() {
             <div
               key={step}
               className={`h-2 rounded-full transition-all ${
-                step <= currentStep ? "bg-secondary w-12" : "bg-muted w-8"
+                step <= currentStep ? "bg-cyan-400 w-12" : "bg-slate-800 w-8"
               }`}
             />
           ))}
         </div>
 
         {/* Calculator Card */}
-        <Card className="max-w-4xl mx-auto p-4 md:p-8 lg:p-12 shadow-lg">
+        <Card className="max-w-4xl mx-auto p-4 md:p-8 lg:p-12 shadow-2xl bg-slate-900 border-slate-800 text-white rounded-3xl">
           {/* Step 1: Housing */}
           {currentStep === 1 && (
             <Step1Housing

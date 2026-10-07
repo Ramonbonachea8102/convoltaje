@@ -1,5 +1,5 @@
 import { EcoPowerKit } from "@/lib/calculator";
-import { Product } from "@/lib/products";
+import { Product, OFFICIAL_WHATSAPP_NUMBER, OFFICIAL_WHATSAPP_CLEAN } from "@/lib/products";
 
 interface PDFGeneratorOptions {
   clientName: string;
@@ -213,7 +213,7 @@ export async function generatePDF(options: PDFGeneratorOptions): Promise<Blob> {
               <h3>Datos del Comercial</h3>
               <p><strong>Atendido por:</strong> ${salesAgent || 'Vía Web / Calculadora'}</p>
               <p><strong>Canal:</strong> ${salesAgent ? 'Venta Asistida' : 'Autogestión Web'}</p>
-              <p><strong>Contacto Info:</strong> ${salesAgent ? 'Asignado' : '+5355144097'}</p>
+              <p><strong>Contacto Info:</strong> ${salesAgent ? 'Asignado' : OFFICIAL_WHATSAPP_NUMBER}</p>
             </div>
           </div>
 
@@ -436,7 +436,7 @@ export async function generateProductSheet(product: Product): Promise<Blob> {
             </div>
           </div>
           <div style="text-align: right; font-size: 12px; color: #6B7280;">
-            <p>WhatsApp: <b>5355144097</b></p>
+            <p>WhatsApp: <b>${OFFICIAL_WHATSAPP_CLEAN}</b></p>
             <p>convoltaje@gmail.com</p>
           </div>
         </div>

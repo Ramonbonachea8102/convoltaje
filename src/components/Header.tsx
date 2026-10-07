@@ -12,6 +12,10 @@ export default function Header({ onResetBrand, onOpenRaffle }: HeaderProps) {
 
   const scrollTo = (id: string) => {
     setActiveTab(id);
+    if (id === "inicio") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -116,14 +120,6 @@ export default function Header({ onResetBrand, onOpenRaffle }: HeaderProps) {
             >
               Contáctanos
             </button>
-            {onResetBrand && (
-              <button
-                onClick={onResetBrand}
-                className="text-xs text-muted-foreground hover:text-cyan-500 transition-colors font-medium flex items-center gap-1 border-r border-border pr-3"
-              >
-                <span>← Cambiar Marca</span>
-              </button>
-            )}
             {onOpenRaffle && (
               <button
                 onClick={onOpenRaffle}

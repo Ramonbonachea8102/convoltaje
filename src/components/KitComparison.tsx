@@ -53,7 +53,7 @@ export default function KitComparison({
         {/* Comparison Grid */}
         <div className="flex overflow-x-auto pb-8 snap-x snap-mandatory hide-scrollbar lg:grid lg:grid-cols-3 gap-6 lg:gap-8 lg:overflow-visible lg:pb-0">
           {products.map((product) => {
-            const currentImage = product.images?.[0] || product.image;
+            const currentImage = product.images?.[0] || product.image || undefined;
             
             return (
               <div 
@@ -62,11 +62,17 @@ export default function KitComparison({
               >
                 {/* Product Image */}
                 <div className="relative aspect-video bg-muted/20 flex items-center justify-center p-4">
-                  <img
-                    src={currentImage}
-                    alt={product.name}
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
+                  {currentImage ? (
+                    <img
+                      src={currentImage}
+                      alt={product.name}
+                      className="w-full h-full object-contain drop-shadow-lg"
+                    />
+                  ) : (
+                    <div className="text-muted-foreground text-xs font-semibold">
+                      Imagen pendiente
+                    </div>
+                  )}
                   {product.discount && (
                     <div className="absolute top-4 right-4 bg-secondary text-secondary-foreground font-bold font-accent px-3 py-1 rounded-full text-sm shadow-lg">
                       -{product.discount}% OFF

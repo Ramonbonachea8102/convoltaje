@@ -3,6 +3,8 @@
  * These generate HTML that can be converted to PDF using browser print or server-side tools
  */
 
+import { OFFICIAL_WHATSAPP_CLEAN } from "./products";
+
 export interface QuotationData {
   quotationNumber: string;
   customerName: string;
@@ -377,7 +379,7 @@ export function generateQuotationHTML(data: QuotationData): string {
             2. Contacta a nuestro comercial provincial<br>
             3. Confirme su pedido y acuerde la instalación<br>
             4. ¡Disfrute de su energía solar con garantía Convoltaje!<br><br>
-            <strong>WhatsApp:</strong> <span class="whatsapp-link">5355144097</span><br>
+            <strong>WhatsApp:</strong> <span class="whatsapp-link">${OFFICIAL_WHATSAPP_CLEAN}</span><br>
             <strong>Email:</strong> convoltaje@gmail.com
           </div>
         </div>
@@ -391,7 +393,7 @@ export function generateQuotationHTML(data: QuotationData): string {
     <div class="footer">
       <div class="contact-info">
         Convoltaje - Soluciones de Energía Solar<br>
-        WhatsApp: 5355144097 | Email: contacto@convoltaje.com<br>
+        WhatsApp: ${OFFICIAL_WHATSAPP_CLEAN} | Email: contacto@convoltaje.com<br>
         Esta prefactura es válida por 30 días desde su emisión.
       </div>
     </div>
@@ -456,7 +458,7 @@ PRÓXIMOS PASOS
 3. Confirma tu pedido y procede con el pago
 4. ¡Disfruta de tu energía limpia!
 
-Contacto: WhatsApp 5355144097
+Contacto: WhatsApp ${OFFICIAL_WHATSAPP_CLEAN}
 Email: contacto@convoltaje.com
 
 ---

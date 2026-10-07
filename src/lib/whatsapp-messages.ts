@@ -1,5 +1,5 @@
 import { ECOPOWER_KITS } from "./calculator";
-import { TINTAFLASH_PRODUCTS } from "./products";
+import { TINTAFLASH_PRODUCTS, OFFICIAL_WHATSAPP_CLEAN } from "./products";
 
 /**
  * Generate personalized WhatsApp message for a specific kit
@@ -147,7 +147,7 @@ export function getGenericInquiryMessage(topic: string): string {
  */
 export function getWhatsAppLink(
   message: string,
-  phoneNumber: string = "5355144097"
+  phoneNumber: string = OFFICIAL_WHATSAPP_CLEAN
 ): string {
   const encodedMessage = encodeURIComponent(message);
   return `https://wa.me/${phoneNumber}?text=${encodedMessage}`;

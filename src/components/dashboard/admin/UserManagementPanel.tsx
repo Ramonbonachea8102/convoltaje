@@ -258,7 +258,7 @@ export default function UserManagementPanel() {
                   type="text"
                   value={formData.telefono}
                   onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                  placeholder="+5355144097"
+                  placeholder="+5353097058"
                   className="w-full bg-slate-950 border border-slate-800 text-white text-xs px-3.5 py-2.5 rounded-xl focus:ring-2 focus:ring-cyan-500 outline-none"
                 />
               </div>

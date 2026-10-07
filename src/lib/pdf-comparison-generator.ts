@@ -1,4 +1,4 @@
-import { Product } from "@/lib/products";
+import { Product, OFFICIAL_WHATSAPP_NUMBER } from "@/lib/products";
 
 export async function generateKitComparisonPDF(products: Product[]): Promise<Blob> {
   if (products.length === 0) {
@@ -191,7 +191,7 @@ export async function generateKitComparisonPDF(products: Product[]): Promise<Blo
         </div>
         <div class="meta-info">
           <div class="doc-title">Tabla Comparativa de Kits</div>
-          <div>WhatsApp: +53 55144097</div>
+          <div>WhatsApp: ${OFFICIAL_WHATSAPP_NUMBER}</div>
           <div>Fecha: ${dateStr}</div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Product } from './products';
+import { Product, OFFICIAL_WHATSAPP_NUMBER } from './products';
 import html2pdf from 'html2pdf.js';
 
 interface ClientData {
@@ -200,7 +200,7 @@ export const generateOfferPdf = async (
               <h3>Datos del Comercial</h3>
               <p><strong>Atendido por:</strong> ${salesAgent || 'Agente Comercial'}</p>
               <p><strong>Canal:</strong> Venta Asistida / CRM</p>
-              <p><strong>Contacto Info:</strong> ${salesPhone || '+5355144097'}</p>
+              <p><strong>Contacto Info:</strong> ${salesPhone || OFFICIAL_WHATSAPP_NUMBER}</p>
             </div>
           </div>
 

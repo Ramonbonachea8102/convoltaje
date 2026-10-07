@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authService } from '../lib/services/authService';
+import { supabase } from '../lib/supabase';
 
-export type UserRole = 'comercial' | 'tecnico' | 'contable' | 'admin' | 'ceo' | 'transportista' | 'proyectista' | 'almacenero' | 'comprador' | 'designado';
+export type UserRole = 'superadmin' | 'comercial' | 'tecnico' | 'contable' | 'admin' | 'ceo' | 'transportista' | 'proyectista' | 'almacenero' | 'comprador' | 'designado';
 
 export interface UserSession {
   id: string;
@@ -56,21 +57,43 @@ export const useAuthStore = create<AuthState>()(
       loginWithCredentials: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
-          const authData = await authService.signInWithEmailPassword(email, password);
-          const profiles = get().availableUsers.length > 0 ? get().availableUsers : await authService.getProfiles();
-          
-          // Buscar perfil asociado por ID de Supabase Auth o por Email
-          const userProfile = profiles.find(
-            p => p.id === authData.user?.id || p.name.toLowerCase() === email.split('@')[0].toLowerCase()
-          ) || {
-            id: authData.user?.id || 'auth-user',
-            name: authData.user?.email?.split('@')[0] || 'Usuario Autenticado',
-            role: (authData.user?.user_metadata?.role as UserRole) || 'comercial',
-            title: 'Miembro del Equipo',
-            avatar: '',
+          const cleanEmail = email.trim().toLowerCase();
+          const authData = await authService.signInWithEmailPassword(cleanEmail, password);
+
+          if (!authData?.user) {
+            throw new Error('No se recibió la sesión del usuario de Supabase Auth.');
+          }
+
+          // Consultar perfil real canónico en public.perfiles
+          const { data: profile, error: profileErr } = await supabase
+            .from('perfiles')
+            .select('*')
+            .or(`id.eq.${authData.user.id},email.eq.${cleanEmail}`)
+            .eq('activo', true)
+            .maybeSingle();
+
+          if (profileErr) {
+            console.error('Error al consultar perfil en Supabase:', profileErr);
+            throw new Error(`Error verificando perfil: ${profileErr.message}`);
+          }
+
+          if (!profile) {
+            await authService.signOut();
+            throw new Error('Acceso denegado: tu cuenta no tiene un perfil administrativo activo registrado en ConVoltaje.');
+          }
+
+          const userProfile: UserSession = {
+            id: profile.id,
+            name: profile.nombre || cleanEmail.split('@')[0],
+            role: profile.rol as UserRole,
+            title: profile.descripcion_corta || 'Administrador',
+            avatar: profile.foto_url || '',
+            clientsCount: profile.total_instalaciones || 0,
+            reviewsCount: profile.calificacion_promedio ? Math.round(Number(profile.calificacion_promedio)) : 0,
+            phone: profile.telefono || '',
           };
 
-          set({ currentUser: userProfile, isLoading: false });
+          set({ currentUser: userProfile, isLoading: false, error: null });
           return true;
         } catch (err: any) {
           set({ error: err.message || 'Error al iniciar sesión', isLoading: false });
